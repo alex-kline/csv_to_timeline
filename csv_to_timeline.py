@@ -94,6 +94,71 @@ def tl_event_add(section_events, event):
     # <xs:element name="milestone" type="xs:string" minOccurs="0" maxOccurs="1"/>
     # </xs:sequence>
     # </xs:complexType>
+    
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     d_event = {}
     d_event["start"]         = ""
