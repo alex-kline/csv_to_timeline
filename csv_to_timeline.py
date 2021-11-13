@@ -9,7 +9,7 @@ __date__ ="$29.12.2013 14:03:33$"
 """
 Sinn und Zweck:
 Zusammenführen einer +/- vorhandenen *.timeline xml-File mit
-den Daten einer *.csv FIle, in der weitere Lebensdaten im csv-Format stehen.
+den Daten einer *.csv FIle, in der weitere ''events'' im csv-Format stehen.
 """
 
 
@@ -54,7 +54,7 @@ def get_events_from_ET (ET_root):
     return event_list
 
 
-def trim_with_events_from_csv_file (fn_in_csv, event_list):
+def find_unknown_events_in_csv_file (fn_in_csv, event_list):
     f = open(fn_in_csv, 'rt')
     new_event_list = []
     try:
@@ -179,7 +179,7 @@ def rh_timeline_parse (basename, extension):
 
     # Alle in der File >*.csv< vorhandenen Events lesen jene herausfiltern, die nicht
     # in der >lo_events< vorhanden sind. In der >lo_events_new< sind also keine Doubletten.
-    lo_events_new = trim_with_events_from_csv_file (fn_csv_in, lo_events)
+    lo_events_new = find_unknown_events_in_csv_file (fn_csv_in, lo_events)
     # Zur Kontrolle die neue, erweiterte event_List als csv-File abspeichern:
     write_all_events_to_csv_file (fn_csv_out, lo_events, lo_events_new)
 
