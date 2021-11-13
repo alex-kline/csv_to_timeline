@@ -96,6 +96,8 @@ def tl_event_add(section_events, event):
     # </xs:complexType>
     
 
+# https://pymotw.com/3/csv/index.html#using-field-names  == csv -> dictionary (statt list)
+
     #
     #
     #
