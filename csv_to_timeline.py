@@ -18,6 +18,9 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import csv
 
+event_fieldnames = ("start", "end", "text", "progress", "fuzzy", "locked", "ends_today",
+                    "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone")
+
 
 def prettify(elem):
     """Return a pretty-printed XML string for the Element."""
@@ -41,127 +44,112 @@ def canonical_date(date):
 
 
 def get_events_from_ET (ET_root):
-    event_list = []
-    for event in ET_root.iter('event'):
-        ev_text     = event.find('text').text.strip()
-        ev_start    = event.find('start').text.strip()
-        ev_end      = event.find('end').text.strip()
-        ev_category = event.find('category').text.strip()
-        item = [ev_text, ev_start, ev_end, ev_category]
-        event_list.append(item)
+    lo_events = []
+    for xml_event in ET_root.iter('event'):
+        # print ('type(xml_event) = ', type(xml_event))
+        ev_text     = xml_event.find('text').text.strip()
+        ev_start    = xml_event.find('start').text.strip()
+        ev_end      = xml_event.find('end').text.strip()
+        ev_category = xml_event.find('category').text.strip()
+        # ev_unknown  = xml_event.find('unknown').text.strip()
+        event = [ev_text, ev_start, ev_end, ev_category]
+        lo_events.append(event)
         # print [ev_start, ev_end, ev_text, ev_category]
-    # print (event_list)
-    return event_list
+    # print (lo_events)
+   
+    d_event = {}
+    print ('Jetzt als dict Anfang')
+    for xml_event in ET_root.iter('event'):
+        # print ('xml_event: ', xml_event, type (xml_event))
+        for cnt, event_fieldname in enumerate (event_fieldnames):
+            # print ('event_fieldname: ', cnt, event_fieldname)
+            # print ('xml_event.find(event_fieldname): ', type (xml_event.find(event_fieldname)))
+            if xml_event.find(event_fieldname) is not None:
+                d_event[event_fieldname] = xml_event.find(event_fieldname).text.strip()
+            else:
+                d_event[event_fieldname] = ''
+        # lo_events.append(event)
+        # print [ev_start, ev_end, ev_text, ev_category]
+
+    print ('Jetzt als dict Ende')
+    return lo_events
 
 
 def find_unknown_events_in_csv_file (fn_in_csv, event_list):
+    # print ('\n fn_in_csv = ', fn_in_csv)
     f = open(fn_in_csv, 'rt')
-    new_event_list = []
+    lo_new_events = []
     try:
-        reader = csv.reader(f, event_list)
+        reader = csv.reader(f)
+        next(reader, None)      # skip header
         for row in reader:
             print (row)
             row[1] = canonical_date(row[1].strip())
             row[2] = canonical_date(row[2].strip())
-            item = [row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip()]
-            # wenn item nicht schon in der (xml-) event_list -> an event_list anfügen.
-            if item in event_list:
+            event = [row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip()]
+            # wenn event nicht schon in der (xml-) event_list -> an event_list anfügen.
+            if event in event_list:
                 pass
             else:
-                new_event_list.append(item)
+                lo_new_events.append(event)
     finally:
         f.close()
-    # print new_event_list
-    return new_event_list
+    # print lo_new_events
+    #
+    
+    # ---------------------------------------------
+    # Similar, but make list of dictionaries
+    #
+    # nb: find dictionary in list of dictionaries:
+    # found_value = next(dictionary for dictionary in list_of_dictionaries if dictionary["odd"] == sought_value)
+
+    f = open(fn_in_csv, 'rt')
+    do_new_events = {}
+    try:
+        reader = csv.DictReader(f)
+        for row in reader:
+            print ('DictRow: ', row)
+            # row[1] = canonical_date(row[1].strip())
+            # row[2] = canonical_date(row[2].strip())
+            # event = [row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip()]
+            # # wenn event nicht schon in der (xml-) event_list -> an event_list anfügen.
+            # if event in event_list:
+            #     pass
+            # else:
+            #     lo_new_events.append(event)
+    finally:
+        f.close()
+
+    return lo_new_events
+
+
 
 def tl_event_add(section_events, event):
-    # according to >timeline.xsd<
-    # <xs:complexType name="event">
-    # <xs:sequence>
-    # <xs:element name="start" type="xs:string"/>
-    # <xs:element name="end" type="xs:string"/>
-    # <xs:element name="text" type="xs:string"/>
-    # <xs:element name="progress" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="fuzzy" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="locked" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="ends_today" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="category" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="hyperlink" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="alert" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="icon" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="default_color" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # <xs:element name="milestone" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    # </xs:sequence>
-    # </xs:complexType>
-    
 
-# https://pymotw.com/3/csv/index.html#using-field-names  == csv -> dictionary (statt list)
-
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
+    #    <xs:complexType name="event">
+    #        <xs:sequence>
+    #            <xs:element name="start" type="xs:string"/>
+    #            <xs:element name="end" type="xs:string"/>
+    #            <xs:element name="text" type="xs:string"/>
+    #            <xs:element name="progress" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="fuzzy" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="locked" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="ends_today" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="category" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="hyperlink" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="alert" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="icon" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="default_color" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #            <xs:element name="milestone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    #        </xs:sequence>
+    #    </xs:complexType>
+    
+    # https://pymotw.com/3/csv/index.html#using-field-names  == csv -> dictionary (statt list)
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
+    # type (d_event) == dictionary
     d_event = {}
     d_event["start"]         = ""
     d_event["end"]           = ""
