@@ -18,6 +18,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import csv
 
+# from >timeline.xsd<
 event_fieldnames = ("start", "end", "text", "progress", "fuzzy", "locked", "ends_today",
                     "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone")
 
