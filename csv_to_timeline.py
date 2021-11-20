@@ -43,7 +43,7 @@ def canonical_date(date):
     return date
     pass
 
-
+# ET = ElementTree
 def get_events_from_ET (ET_root):
     lo_events = []
     for xml_event in ET_root.iter('event'):
@@ -123,8 +123,6 @@ def find_unknown_events_in_csv_file (fn_in_csv, event_list):
 
     return lo_new_events
 
-
-
 def tl_event_add(section_events, event):
 
     #    <xs:complexType name="event">
@@ -188,8 +186,6 @@ def tl_event_add(section_events, event):
     if d_event["category"]:
         ET.SubElement(new_event, 'category').text  = d_event["category"]
 
-
-
 def write_all_events_to_csv_file (fn_out_csv, event_list, new_event_list):
     f = open(fn_out_csv , 'w')
     try:
@@ -204,9 +200,7 @@ def write_all_events_to_csv_file (fn_out_csv, event_list, new_event_list):
     finally:
         f.close()
 
-
-# def rh_timeline_parse (basename = '2013_12_28_Aufklaerung_00' , extension = 'timeline'):
-def rh_timeline_parse (basename, extension):
+def rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     """
     1)a) Liest eine *.timeline-File (xml),
       b) parsed diese xml-Struktur
@@ -221,11 +215,6 @@ def rh_timeline_parse (basename, extension):
 
     lo_events            = []  # Liste der       in *.timeline vorhandenen events.
     lo_events_new        = []  # Liste der nicht in *.timeline vorhandenen events - aber in der *.csv.
-
-    fn_xml_in  = basename + '.'     + extension
-    fn_xml_out = basename + '_out.' + extension
-    fn_csv_in  = basename + '_in' + '.' + 'csv'
-    fn_csv_out = basename + '_out' + '.' + 'csv'
 
     timeline_ET_tree = ET.parse(fn_xml_in)
     timeline_ET_root = timeline_ET_tree.getroot()
@@ -248,19 +237,30 @@ def rh_timeline_parse (basename, extension):
         tl_event_add(section_events, event)
 
     # format XML tree: https://stackoverflow.com/questions/749796/pretty-printing-xml-in-python
-    ET.indent(timeline_ET_root)
-    ET.dump(timeline_ET_root)    # print it to console
+    ET.indent(timeline_ET_root)    # format
+    ET.dump(timeline_ET_root)      # print it to console
     # *.timeline-File schreiben:
     timeline_ET_tree.write(fn_xml_out, encoding="utf-8", xml_declaration=True)
     
+
+
+
+
 if __name__ == "__main__":
     print ("BEGIN: timeline_csv_2_xml.py")
-    #parse_timeline()
     
-    #pymotw_parse_XML(basename = '2013_12_28_Aufklaerung_00' , extension = 'timeline')
-    # pymotw_parse_XML(basename = 'tl_tst', extension = 'xml')
+    xml_basename  = '2013-12-28_Aufklaerung_00'
+    xml_extension = 'timeline'
 
-    # 2013-12-28_Aufklaerung_00.timeline
-    rh_timeline_parse (basename='2013-12-28_Aufklaerung_00', extension='timeline')
-    
+    csv_basename  = '2013-12-28_Aufklaerung_00'
+    csv_extension = 'csv'
+
+    fn_xml_in  = xml_basename + '.'     + xml_extension
+    fn_xml_out = xml_basename + '_out.' + xml_extension
+
+    fn_csv_in  = csv_basename + '.'     + csv_extension
+    fn_csv_out = csv_basename + '_out.' + csv_extension
+
+    rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out)
+
     print ("\nEND: timeline_csv_2_xml.py")
