@@ -13,7 +13,6 @@ den Daten einer *.csv FIle, in der weitere ''events'' im csv-Format stehen.
 """
 
 
-#from xml.etree.ElementTree import iterparse
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import csv
@@ -43,10 +42,20 @@ def canonical_date(date):
     return date
     pass
 
+def new_d_event():
+    # return dictionary with keys according to event_fieldnames in >timeline.xsd<
+    # all values are preset = ''
+    d_event_philosopher = {}
+    for cnt, event_fieldname in enumerate (event_fieldnames):
+        d_event_philosopher[event_fieldname] = ''
+    # d_event_philosopher["start"] = '?'
+    # d_event_philosopher["end"]   = '?'
+    return d_event_philosopher
+
 # ET = ElementTree
 def get_events_from_ET (ET_root):
     lo_events = []
-    for xml_event in ET_root.iter('event'):
+    for xml_event in ET_root.iter('d_event'):
         # print ('type(xml_event) = ', type(xml_event))
         ev_text     = xml_event.find('text').text.strip()
         ev_start    = xml_event.find('start').text.strip()
@@ -60,7 +69,7 @@ def get_events_from_ET (ET_root):
    
     d_event = {}
     print ('Jetzt als dict Anfang')
-    for xml_event in ET_root.iter('event'):
+    for xml_event in ET_root.iter('d_event'):
         # print ('xml_event: ', xml_event, type (xml_event))
         for cnt, event_fieldname in enumerate (event_fieldnames):
             # print ('event_fieldname: ', cnt, event_fieldname)
@@ -69,122 +78,58 @@ def get_events_from_ET (ET_root):
                 d_event[event_fieldname] = xml_event.find(event_fieldname).text.strip()
             else:
                 d_event[event_fieldname] = ''
-        # lo_events.append(event)
+        # lo_events.append(d_event)
         # print [ev_start, ev_end, ev_text, ev_category]
-
     print ('Jetzt als dict Ende')
+
     return lo_events
 
 
-def find_unknown_events_in_csv_file (fn_in_csv, event_list):
-    # print ('\n fn_in_csv = ', fn_in_csv)
-    f = open(fn_in_csv, 'rt')
-    lo_new_events = []
-    try:
-        reader = csv.reader(f)
-        next(reader, None)      # skip header
-        for row in reader:
-            print (row)
-            row[1] = canonical_date(row[1].strip())
-            row[2] = canonical_date(row[2].strip())
-            event = [row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip()]
-            # wenn event nicht schon in der (xml-) event_list -> an event_list anfügen.
-            if event in event_list:
-                pass
-            else:
-                lo_new_events.append(event)
-    finally:
-        f.close()
-    # print lo_new_events
-    #
-    
-    # ---------------------------------------------
-    # Similar, but make list of dictionaries
-    #
+def read_events_from_csv_file (fn_in_csv):
+    # Make list of dictionaries with new events from csv-file
     # nb: find dictionary in list of dictionaries:
     # found_value = next(dictionary for dictionary in list_of_dictionaries if dictionary["odd"] == sought_value)
+    # https://stackoverflow.com/questions/9323749/how-to-check-if-one-dictionary-is-a-subset-of-another-larger-dictionary
 
-    f = open(fn_in_csv, 'rt')
-    do_new_events = {}
+    lo_new_events = []
+    f = open(fn_in_csv, 'r', encoding='utf8')
     try:
         reader = csv.DictReader(f)
+        # DictRow:
         for row in reader:
             print ('DictRow: ', row)
-            # row[1] = canonical_date(row[1].strip())
-            # row[2] = canonical_date(row[2].strip())
-            # event = [row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip()]
-            # # wenn event nicht schon in der (xml-) event_list -> an event_list anfügen.
-            # if event in event_list:
-            #     pass
-            # else:
-            #     lo_new_events.append(event)
+            d_event = new_d_event()
+            for key in event_fieldnames:
+                try:
+                    d_event[key]   = row[key]
+                    if (key == 'start'):
+                        d_event['start'] = canonical_date(row['start'])
+                    elif (key == 'end'):
+                        d_event['end']   = canonical_date(row['end'])
+                except: pass
+            lo_new_events.append(d_event)
     finally:
         f.close()
-
     return lo_new_events
 
-def tl_event_add(section_events, event):
+def tl_event_add(section_events, d_event):
+    # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
+    # Die Inhalte des dict >d_event< werden an die section >events< angehängt.
 
-    #    <xs:complexType name="event">
-    #        <xs:sequence>
-    #            <xs:element name="start" type="xs:string"/>
-    #            <xs:element name="end" type="xs:string"/>
-    #            <xs:element name="text" type="xs:string"/>
-    #            <xs:element name="progress" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="fuzzy" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="locked" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="ends_today" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="category" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="hyperlink" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="alert" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="icon" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="default_color" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #            <xs:element name="milestone" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    #        </xs:sequence>
-    #    </xs:complexType>
+    new_ET_event = ET.SubElement(section_events, 'event')
+    for cnt, key in enumerate(d_event.keys()):
+        try:
+            if d_event[key]:
+                tag = ET.Element(key)     # i.e. "<name><\name>"
+                tag.text = d_event[key]   # ->   "<name>Sokrates<\name>"
+                new_ET_event.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
+        except:
+            print ('Error', key, d_event[key])
+            pass
     
-    # https://pymotw.com/3/csv/index.html#using-field-names  == csv -> dictionary (statt list)
-    
-    
-    
-    # type (d_event) == dictionary
-    d_event = {}
-    d_event["start"]         = ""
-    d_event["end"]           = ""
-    d_event["text"]          = ""
-    d_event["progress"]      = ""
-    d_event["fuzzy"]         = ""
-    d_event["locked"]        = ""
-    d_event["ends_today"]    = ""
-    d_event["category"]      = ""
-    d_event["description"]   = ""
-    d_event["hyperlink"]     = ""
-    d_event["alert"]         = ""
-    d_event["icon"]          = ""
-    d_event["default_color"] = ""
-    d_event["milestone"]     = ""
-
-    new_event               = ET.SubElement(section_events, 'event')
-
-
-    # ET.SubElement(new_event, 'start').text = event[1]
-    # ET.SubElement(new_event, 'end').text   = event[2]
-    # ET.SubElement(new_event, 'text').text  = event[0]
-    # if event[3]:
-    #     ET.SubElement(new_event, 'category').text  = event[3]
-
-    d_event["start"]         = event[1]
-    d_event["end"]           = event[2]
-    d_event["text"]          = event[0]
-    d_event["category"]      = event[3]
-
-
-    ET.SubElement(new_event, 'start').text = d_event["start"]
-    ET.SubElement(new_event, 'end').text   = d_event["end"]
-    ET.SubElement(new_event, 'text').text  = d_event["text"]
-    if d_event["category"]:
-        ET.SubElement(new_event, 'category').text  = d_event["category"]
+    # print(ET.tostring(new_ET_event))
+    # ET.SubElement(section_events, 'event').append(new_ET_event)
+    ET.Element(section_events).append(new_ET_event)
 
 def write_all_events_to_csv_file (fn_out_csv, event_list, new_event_list):
     f = open(fn_out_csv , 'w')
@@ -214,7 +159,7 @@ def rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     inside_single_event = False
 
     lo_events            = []  # Liste der       in *.timeline vorhandenen events.
-    lo_events_new        = []  # Liste der nicht in *.timeline vorhandenen events - aber in der *.csv.
+    lo_new_events        = []  # Liste der nicht in *.timeline vorhandenen events - aber in der *.csv.
 
     timeline_ET_tree = ET.parse(fn_xml_in)
     timeline_ET_root = timeline_ET_tree.getroot()
@@ -223,18 +168,21 @@ def rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     lo_events = get_events_from_ET (timeline_ET_root)   # aus *.timeline
 
     # Alle in der File >*.csv< vorhandenen Events lesen jene herausfiltern, die nicht
-    # in der >lo_events< vorhanden sind. In der >lo_events_new< sind also keine Doubletten.
-    lo_events_new = find_unknown_events_in_csv_file (fn_csv_in, lo_events)
+    # in der >lo_events< vorhanden sind. In der >lo_new_events< sind also keine Doubletten.
+    # lo_new_events = read_events_from_csv_file (fn_csv_in, lo_events)
+    lo_new_events = read_events_from_csv_file (fn_csv_in)
     # Zur Kontrolle die neue, erweiterte event_List als csv-File abspeichern:
-    write_all_events_to_csv_file (fn_csv_out, lo_events, lo_events_new)
+    write_all_events_to_csv_file (fn_csv_out, lo_events, lo_new_events)
 
     # Die >timeline_ET_root< um die neuen events erweitern:
-    # find first section '<events>'
+    # find (first) section '<events>'
     section_events = timeline_ET_root.find('.//events[1]')
+    # print ('section_events.text: >' + section_events.text + '<')
 
     # alle items, die noch nicht in der >*.timeline< waren.
-    for event in lo_events_new:
-        tl_event_add(section_events, event)
+    for d_event in lo_new_events:
+        # print (d_event)
+        tl_event_add(section_events, d_event)
 
     # format XML tree: https://stackoverflow.com/questions/749796/pretty-printing-xml-in-python
     ET.indent(timeline_ET_root)    # format
@@ -243,8 +191,6 @@ def rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     timeline_ET_tree.write(fn_xml_out, encoding="utf-8", xml_declaration=True)
     
 
-
-
 if __name__ == "__main__":
     print ("BEGIN: timeline_csv_2_xml.py")
     
@@ -252,6 +198,8 @@ if __name__ == "__main__":
     xml_extension = 'timeline'
 
     csv_basename  = '2013-12-28_Aufklaerung_00'
+    csv_basename  = 'WP-de_Zeittafel_zur_Philosophiegeschichte'
+    
     csv_extension = 'csv'
 
     fn_xml_in  = xml_basename + '.'     + xml_extension
