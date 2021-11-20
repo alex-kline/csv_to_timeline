@@ -245,7 +245,6 @@ def rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
 
 
 
-
 if __name__ == "__main__":
     print ("BEGIN: timeline_csv_2_xml.py")
     
