@@ -144,6 +144,17 @@ def read_events_from_csv_file (fn_in_csv):
         f.close()
     return lo_new_events
 
+def make_color_palette():
+    # https://stackoverflow.com/questions/876853/generating-color-ranges-in-python
+    # https://seaborn.pydata.org/tutorial/color_palettes.html
+    # https://www.kaggle.com/asimislam/python-colors-color-cmap-palette
+    # https://coolors.co/
+    # https://pymolwiki.org/index.php/Colorblindfriendly
+    # https://github.com/drammock/colorblind
+    # https://davidmathlogic.com/colorblind/#%23D81B60-%231E88E5-%23FFC107-%23004D40
+    # https://davidmathlogic.com/colorblind/#%23000000-%23E69F00-%2356B4E9-%23009E73-%23F0E442-%230072B2-%23D55E00-%23CC79A7
+    pass
+
 def tl_categories_add(section_categories, lo_new_events):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
     # Erst werden die unterschiedlichen Kategorien heruasgefiltert, dann
