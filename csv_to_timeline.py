@@ -16,6 +16,7 @@ den Daten einer *.csv FIle, in der weitere ''events'' im csv-Format stehen.
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import csv
+import datetime
 
 # from >timeline.xsd<
 event_fieldnames = ("start", "end", "text", "progress", "fuzzy", "locked", "ends_today",
@@ -36,11 +37,41 @@ def print_dict(dict):
                 print (val, end = '')
             print
 
-def canonical_date(date):
-    if len(date) != 19:
-        date = date + ' 00:00:00'
-    return date
-    pass
+def canonical_date(year):
+    # https://stackoverflow.com/questions/17709751/how-make-a-datetime-object-in-year-0-with-python
+    # '-624'   =>  '-624-01-01 00:00:00'
+    if (year == 'alive'):
+        date = str(datetime.date.today())
+        return date
+    
+    year_zero = False
+    bc = False
+
+    if (year[0] == '-'):
+        bc = True
+        year = year[1:]
+        # print ("=0>  year: ", year, end = '     ' )
+        
+    if len(year) < 10:
+        year = int(year)
+        if (year == 0):
+            year_zero = True
+            year = 1
+        date = datetime.date(year, 1, 1)
+        # print ("=1>  date: ", str(date), end = '     ' )
+        date = str(date) + ' 00:00:00'
+        if year_zero:
+            new_date = '1' + date[1:]
+            date     = new_date
+        if bc:
+            date = '-' + date
+        # print ("=2>  date: ", date, '\n' )
+        return date
+    else:
+        if bc:
+            # print()
+            pass
+        return year
 
 def new_d_event():
     # return dictionary with keys according to event_fieldnames in >timeline.xsd<
@@ -48,8 +79,6 @@ def new_d_event():
     d_event_philosopher = {}
     for cnt, event_fieldname in enumerate (event_fieldnames):
         d_event_philosopher[event_fieldname] = ''
-    # d_event_philosopher["start"] = '?'
-    # d_event_philosopher["end"]   = '?'
     return d_event_philosopher
 
 # ET = ElementTree
@@ -84,7 +113,6 @@ def get_events_from_ET (ET_root):
 
     return lo_events
 
-
 def read_events_from_csv_file (fn_in_csv):
     # Make list of dictionaries with new events from csv-file
     # nb: find dictionary in list of dictionaries:
@@ -101,16 +129,54 @@ def read_events_from_csv_file (fn_in_csv):
             d_event = new_d_event()
             for key in event_fieldnames:
                 try:
-                    d_event[key]   = row[key]
-                    if (key == 'start'):
-                        d_event['start'] = canonical_date(row['start'])
-                    elif (key == 'end'):
-                        d_event['end']   = canonical_date(row['end'])
-                except: pass
+                    if row[key]:
+                        d_event[key]   = row[key]
+                except:
+                    pass
+                if (key == 'start'):
+                    print ("!!!  start: ", row['start'] )
+                    d_event['start'] = canonical_date(row['start'])
+                elif (key == 'end'):
+                    d_event['end']   = canonical_date(row['end'])
             lo_new_events.append(d_event)
     finally:
         f.close()
     return lo_new_events
+
+def tl_categories_add(section_category, lo_new_events):
+    # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
+    # Erst werden die unterschiedlichen Kategorien heruasgefiltert, dann
+    # werden sie an die section >category< angehängt.
+
+    lo_categories = []
+    for d_event in lo_new_events:
+        if d_event['category'] not in lo_categories:
+            lo_categories.append(d_event['category'])
+
+    for cnt, category in enumerate(lo_categories):
+        new_ET_event = ET.SubElement(section_events, 'event')
+        for cnt, key in enumerate(d_event.keys()):
+            try:
+                if d_event[key]:
+                    tag = ET.Element(key)     # i.e. "<name><\name>"
+                    tag.text = d_event[key]   # ->   "<name>Sokrates<\name>"
+                    new_ET_event.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
+            except:
+                print ('Error', key, d_event[key])
+                pass
+    
+        # print(ET.tostring(new_ET_event))
+        # ET.SubElement(section_events, 'event').append(new_ET_event)
+        ET.Element(section_events).append(new_ET_event)
+
+
+
+
+
+
+        new_ET_category      = ET.SubElement(section_category, 'category')
+        new_ET_category.text = category
+        ET.Element(section_category).append(new_ET_category)
 
 def tl_event_add(section_events, d_event):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
@@ -179,9 +245,12 @@ def rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     section_events = timeline_ET_root.find('.//events[1]')
     # print ('section_events.text: >' + section_events.text + '<')
 
+    # Es werden alle Kategorien eruiert und in die section >category< eingefügt
+    section_category = timeline_ET_root.find('.//categories[1]')
+    tl_categories_add(section_category, lo_new_events)
+
     # alle items, die noch nicht in der >*.timeline< waren.
     for d_event in lo_new_events:
-        # print (d_event)
         tl_event_add(section_events, d_event)
 
     # format XML tree: https://stackoverflow.com/questions/749796/pretty-printing-xml-in-python
