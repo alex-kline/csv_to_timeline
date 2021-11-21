@@ -42,6 +42,7 @@ def canonical_date(year):
     # '-624'   =>  '-624-01-01 00:00:00'
     if (year == 'alive'):
         date = str(datetime.date.today())
+        date = str(date) + ' 00:00:00'
         return date
     
     year_zero = False
@@ -143,7 +144,7 @@ def read_events_from_csv_file (fn_in_csv):
         f.close()
     return lo_new_events
 
-def tl_categories_add(section_category, lo_new_events):
+def tl_categories_add(section_categories, lo_new_events):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
     # Erst werden die unterschiedlichen Kategorien heruasgefiltert, dann
     # werden sie an die section >category< angehängt.
@@ -153,30 +154,28 @@ def tl_categories_add(section_category, lo_new_events):
         if d_event['category'] not in lo_categories:
             lo_categories.append(d_event['category'])
 
+    category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
     for cnt, category in enumerate(lo_categories):
-        new_ET_event = ET.SubElement(section_events, 'event')
-        for cnt, key in enumerate(d_event.keys()):
-            try:
-                if d_event[key]:
-                    tag = ET.Element(key)     # i.e. "<name><\name>"
-                    tag.text = d_event[key]   # ->   "<name>Sokrates<\name>"
-                    new_ET_event.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
-            except:
-                print ('Error', key, d_event[key])
-                pass
-    
-        # print(ET.tostring(new_ET_event))
-        # ET.SubElement(section_events, 'event').append(new_ET_event)
-        ET.Element(section_events).append(new_ET_event)
+        new_ET_category = ET.SubElement(section_categories, 'category')
+        for cnt, key in enumerate(category_keys):
+            tag = ET.Element(key)     # i.e. "<name><\name>"
+            if (key == 'name'):
+                tag.text = category   # ->   "<name>Sokrates<\name>"
+            elif (key == 'color'):
+                tag.text = '0,128,128'   # ->   "<name>Sokrates<\name>"
+            elif (key == 'progress_color'):
+                tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
+            elif (key == 'progress_color'):
+                tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
+            elif (key == 'done_color'):
+                tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
+            elif (key == 'font_color'):
+                tag.text = '255,255,255'   # ->   "<name>Sokrates<\name>"
+            else:
+                tag.text = ''
+            new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
 
-
-
-
-
-
-        new_ET_category      = ET.SubElement(section_category, 'category')
-        new_ET_category.text = category
-        ET.Element(section_category).append(new_ET_category)
+        ET.Element(section_categories).append(new_ET_category)
 
 def tl_event_add(section_events, d_event):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
