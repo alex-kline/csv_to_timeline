@@ -98,7 +98,7 @@ def get_events_from_ET (ET_root):
     # print (lo_events)
    
     d_event = {}
-    print ('Jetzt als dict Anfang')
+    # print ('Jetzt als dict Anfang')
     for xml_event in ET_root.iter('d_event'):
         # print ('xml_event: ', xml_event, type (xml_event))
         for cnt, event_fieldname in enumerate (event_fieldnames):
@@ -110,7 +110,7 @@ def get_events_from_ET (ET_root):
                 d_event[event_fieldname] = ''
         # lo_events.append(d_event)
         # print [ev_start, ev_end, ev_text, ev_category]
-    print ('Jetzt als dict Ende')
+    # print ('Jetzt als dict Ende')
 
     return lo_events
 
@@ -126,7 +126,7 @@ def read_events_from_csv_file (fn_in_csv):
         reader = csv.DictReader(f)
         # DictRow:
         for row in reader:
-            print ('DictRow: ', row)
+            # print ('DictRow: ', row)
             d_event = new_d_event()
             for key in event_fieldnames:
                 try:
@@ -135,7 +135,7 @@ def read_events_from_csv_file (fn_in_csv):
                 except:
                     pass
                 if (key == 'start'):
-                    print ("!!!  start: ", row['start'] )
+                    # print ("!!!  start: ", row['start'] )
                     d_event['start'] = canonical_date(row['start'])
                 elif (key == 'end'):
                     d_event['end']   = canonical_date(row['end'])
