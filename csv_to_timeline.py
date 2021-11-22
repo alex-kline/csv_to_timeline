@@ -97,7 +97,7 @@ def get_events_from_ET (ET_root):
         # print [ev_start, ev_end, ev_text, ev_category]
     # print (lo_events)
    
-    d_event = {}
+    d_event = {} #
     # print ('Jetzt als dict Anfang')
     for xml_event in ET_root.iter('d_event'):
         # print ('xml_event: ', xml_event, type (xml_event))
