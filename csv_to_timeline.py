@@ -114,7 +114,7 @@ def get_events_from_ET (ET_root):
 
     return lo_events
 
-def read_events_from_csv_file (fn_in_csv):
+def get_events_from_csv_file (fn_in_csv):
     # Make list of dictionaries with new events from csv-file
     # nb: find dictionary in list of dictionaries:
     # found_value = next(dictionary for dictionary in list_of_dictionaries if dictionary["odd"] == sought_value)
@@ -153,11 +153,16 @@ def make_color_palette():
     # https://github.com/drammock/colorblind
     # https://davidmathlogic.com/colorblind/#%23D81B60-%231E88E5-%23FFC107-%23004D40
     # https://davidmathlogic.com/colorblind/#%23000000-%23E69F00-%2356B4E9-%23009E73-%23F0E442-%230072B2-%23D55E00-%23CC79A7
+    
+    # https://stackoverflow.com/questions/36657151/cycle-through-list-items
+    # https://www.nature.com/articles/nmeth.1618
+    
     pass
 
+# tl == timeline
 def tl_categories_add(section_categories, lo_new_events):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
-    # Erst werden die unterschiedlichen Kategorien heruasgefiltert, dann
+    # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
     # werden sie an die section >category< angehängt.
 
     lo_categories = []
@@ -221,7 +226,7 @@ def write_all_events_to_csv_file (fn_out_csv, event_list, new_event_list):
     finally:
         f.close()
 
-def rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
+def tl_file_generate (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     """
     1)a) Liest eine *.timeline-File (xml),
       b) parsed diese xml-Struktur
@@ -245,8 +250,8 @@ def rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
 
     # Alle in der File >*.csv< vorhandenen Events lesen jene herausfiltern, die nicht
     # in der >lo_events< vorhanden sind. In der >lo_new_events< sind also keine Doubletten.
-    # lo_new_events = read_events_from_csv_file (fn_csv_in, lo_events)
-    lo_new_events = read_events_from_csv_file (fn_csv_in)
+    # lo_new_events = get_events_from_csv_file (fn_csv_in, lo_events)
+    lo_new_events = get_events_from_csv_file (fn_csv_in)
     # Zur Kontrolle die neue, erweiterte event_List als csv-File abspeichern:
     write_all_events_to_csv_file (fn_csv_out, lo_events, lo_new_events)
 
@@ -287,6 +292,6 @@ if __name__ == "__main__":
     fn_csv_in  = csv_basename + '.'     + csv_extension
     fn_csv_out = csv_basename + '_out.' + csv_extension
 
-    rh_timeline_parse (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out)
+    tl_file_generate (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out)
 
     print ("\nEND: timeline_csv_2_xml.py")
