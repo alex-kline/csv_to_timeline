@@ -13,15 +13,34 @@ den Daten einer *.csv FIle, in der weitere ''events'' im csv-Format stehen.
 """
 
 
-import xml.etree.ElementTree as ET
+# from itertools import cycle
 from xml.dom import minidom
+# import Levenshtein
+import codecs
 import csv
 import datetime
+import difflib
+# import distance
+import itertools
+import xml.etree.ElementTree as ET
 
 # from >timeline.xsd<
 event_fieldnames = ("start", "end", "text", "progress", "fuzzy", "locked", "ends_today",
                     "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone")
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    
+def prnt_yellow (strg, str_end ='\n'):
+    print (f"{bcolors.WARNING} " + strg + f"{bcolors.ENDC}", end = str_end)
 
 def prettify(elem):
     """Return a pretty-printed XML string for the Element."""
@@ -73,6 +92,12 @@ def canonical_date(year):
             # print()
             pass
         return year
+
+def diff_ratio(str_1, str_2):
+    # https://stackoverflow.com/questions/6690739/high-performance-fuzzy-string-comparison-in-python-use-levenshtein-or-difflib
+    # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
+    diff = difflib.SequenceMatcher(None, str_1, str_2).ratio()
+    return diff
 
 def new_d_event():
     # return dictionary with keys according to event_fieldnames in >timeline.xsd<
@@ -144,7 +169,7 @@ def get_events_from_csv_file (fn_in_csv):
         f.close()
     return lo_new_events
 
-def make_color_palette():
+def get_color_palette():
     # https://stackoverflow.com/questions/876853/generating-color-ranges-in-python
     # https://seaborn.pydata.org/tutorial/color_palettes.html
     # https://www.kaggle.com/asimislam/python-colors-color-cmap-palette
@@ -154,10 +179,33 @@ def make_color_palette():
     # https://davidmathlogic.com/colorblind/#%23D81B60-%231E88E5-%23FFC107-%23004D40
     # https://davidmathlogic.com/colorblind/#%23000000-%23E69F00-%2356B4E9-%23009E73-%23F0E442-%230072B2-%23D55E00-%23CC79A7
     
-    # https://stackoverflow.com/questions/36657151/cycle-through-list-items
     # https://www.nature.com/articles/nmeth.1618
     
-    pass
+    class Colors:
+        # https://www.nature.com/articles/nmeth.1618/figures/2
+        # orange      = (230,159,0)
+        # sky_blue    = (86,180, 233)
+        # bluish_green= (0,158,115)
+        # yellow      = (240, 228,66)
+        # sky_blue    = (0, 114, 178)
+        # vermillion  = (213,94,0)
+        
+        def __init__(self):
+            self.orange      = (230,159,0)
+            self.sky_blue    = (86,180, 233)
+            self.bluish_green= (0,158,115)
+            self.yellow      = (240, 228,66)
+            self.sky_blue    = (0, 114, 178)
+            self.vermillion  = (213,94,0)
+            pass
+
+    # print (Colors().__dict__)
+    # print (Colors.__dict__)
+    # https://stackoverflow.com/questions/12409714/python-class-members
+    # https://stackoverflow.com/questions/16228248/how-can-i-get-list-of-values-from-dict
+    palette = (list(Colors().__dict__.values()))
+    # print (palette)
+    return palette
 
 # tl == timeline
 def tl_categories_add(section_categories, lo_new_events):
@@ -165,20 +213,42 @@ def tl_categories_add(section_categories, lo_new_events):
     # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
     # werden sie an die section >category< angehängt.
 
-    lo_categories = []
-    for d_event in lo_new_events:
-        if d_event['category'] not in lo_categories:
-            lo_categories.append(d_event['category'])
+    
+    color_list = itertools.cycle(get_color_palette())
 
+    lo_category = []
+    for d_event in lo_new_events:
+        if d_event['category'] not in lo_category:
+            lo_category.append(d_event['category'])
+
+    for idx in range (len(lo_category[1:-1])):
+        category_1 = lo_category[idx]
+        category_2 = lo_category[idx + 1]
+        # "{:.2f}".format(z)
+        ratio     = diff_ratio(category_1[:25], category_2[:25])
+        ratio_str = "{:.5f}".format(ratio, 5)
+        # prnt_yellow (ratio_str, ' ')
+        # print (len(lo_category[1:-1]), category_1, ' // ',  category_2)
+        if (ratio < 0.54):
+            prnt_yellow (ratio_str, ' ')
+            category_color = str(next(color_list))
+            
+        else:
+            print       (ratio_str, end = '  ')
+        print ('  ' + category_1, '\n           ' +  category_2)
+        
     category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
-    for cnt, category in enumerate(lo_categories):
+    for cnt, category in enumerate(lo_category):
         new_ET_category = ET.SubElement(section_categories, 'category')
         for cnt, key in enumerate(category_keys):
             tag = ET.Element(key)     # i.e. "<name><\name>"
             if (key == 'name'):
                 tag.text = category   # ->   "<name>Sokrates<\name>"
             elif (key == 'color'):
+                # https://stackoverflow.com/questions/36657151/cycle-through-list-items
                 tag.text = '0,128,128'   # ->   "<name>Sokrates<\name>"
+                tag.text = str(next(color_list))
+                tag.text = category_color
             elif (key == 'progress_color'):
                 tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
             elif (key == 'progress_color'):
@@ -264,6 +334,7 @@ def tl_file_generate (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     section_category = timeline_ET_root.find('.//categories[1]')
     tl_categories_add(section_category, lo_new_events)
 
+    exit(0)
     # alle items, die noch nicht in der >*.timeline< waren.
     for d_event in lo_new_events:
         tl_event_add(section_events, d_event)
@@ -274,9 +345,11 @@ def tl_file_generate (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     # *.timeline-File schreiben:
     timeline_ET_tree.write(fn_xml_out, encoding="utf-8", xml_declaration=True)
     
-
 if __name__ == "__main__":
     print ("BEGIN: timeline_csv_2_xml.py")
+    get_color_palette()
+    
+    # exit (0)
     
     xml_basename  = '2013-12-28_Aufklaerung_00'
     xml_extension = 'timeline'
