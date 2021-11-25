@@ -191,20 +191,28 @@ def get_color_palette():
         # vermillion  = (213,94,0)
         
         def __init__(self):
-            self.orange      = (230,159,0)
-            self.sky_blue    = (86,180, 233)
-            self.bluish_green= (0,158,115)
-            self.yellow      = (240, 228,66)
-            self.sky_blue    = (0, 114, 178)
-            self.vermillion  = (213,94,0)
+            self.orange      = 230,159,0
+            self.sky_blue    = 86,180, 233
+            self.bluish_green= 0,158,115
+            self.yellow      = 240, 228,66
+            self.sky_blue    = 0, 114, 178
+            self.vermillion  = 213,94,0
             pass
 
     # print (Colors().__dict__)
     # print (Colors.__dict__)
     # https://stackoverflow.com/questions/12409714/python-class-members
     # https://stackoverflow.com/questions/16228248/how-can-i-get-list-of-values-from-dict
-    palette = (list(Colors().__dict__.values()))
-    # print (palette)
+    # lo_color = list(Colors().__dict__.values())
+    palette = []
+    lo_color = list(Colors().__dict__.values())
+    print ('type(lo_color) = ', type(lo_color))
+    for color in lo_color:
+        color = str(color)
+        palette.append(color[1:-1].replace(' ', ''))
+        print ('type(color) = ', type(color),'>' + color[1:-1] + '<')
+
+    # exit (0)
     return palette
 
 # tl == timeline
@@ -212,9 +220,8 @@ def tl_categories_add(section_categories, lo_new_events):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
     # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
     # werden sie an die section >category< angehängt.
-
     
-    color_list = itertools.cycle(get_color_palette())
+    lo_color = itertools.cycle(get_color_palette())
 
     lo_category = []
     for d_event in lo_new_events:
@@ -231,7 +238,7 @@ def tl_categories_add(section_categories, lo_new_events):
         # print (len(lo_category[1:-1]), category_1, ' // ',  category_2)
         if (ratio < 0.54):
             prnt_yellow (ratio_str, ' ')
-            category_color = str(next(color_list))
+            category_color = str(next(lo_color))
             
         else:
             print       (ratio_str, end = '  ')
@@ -240,26 +247,32 @@ def tl_categories_add(section_categories, lo_new_events):
     category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
     for cnt, category in enumerate(lo_category):
         new_ET_category = ET.SubElement(section_categories, 'category')
-        for cnt, key in enumerate(category_keys):
-            tag = ET.Element(key)     # i.e. "<name><\name>"
-            if (key == 'name'):
-                tag.text = category   # ->   "<name>Sokrates<\name>"
-            elif (key == 'color'):
-                # https://stackoverflow.com/questions/36657151/cycle-through-list-items
-                tag.text = '0,128,128'   # ->   "<name>Sokrates<\name>"
-                tag.text = str(next(color_list))
-                tag.text = category_color
-            elif (key == 'progress_color'):
-                tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
-            elif (key == 'progress_color'):
-                tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
-            elif (key == 'done_color'):
-                tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
-            elif (key == 'font_color'):
-                tag.text = '255,255,255'   # ->   "<name>Sokrates<\name>"
-            else:
-                tag.text = ''
-            new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
+        ET.Element('name').text            = category               # i.e. "<name><\name>"
+        ET.Element('color').text           = str(next(lo_color))  # i.e. "<name><\name>"
+        ET.Element('progress_color').text  = '153,254,255'        # i.e. "<name><\name>"
+        ET.Element('done_color').text      = '153,254,255'        # i.e. "<name><\name>"
+        ET.Element('font_color').text      = '255,255,255'        # i.e. "<name><\name>"
+        # new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
+        new_ET_category.append(new_ET_category)
+        
+        # for cnt, key in enumerate(category_keys):
+        #     tag = ET.Element(key)     # i.e. "<name><\name>"
+        #     if (key == 'name'):
+        #         tag.text = category   # ->   "<name>Sokrates<\name>"
+        #     elif (key == 'color'):
+        #         # https://stackoverflow.com/questions/36657151/cycle-through-list-items
+        #         tag.text = category_color
+        #         tag.text = '0,128,128'   # ->   "<name>Sokrates<\name>"
+        #         tag.text = str(next(lo_color))
+        #     elif (key == 'progress_color'):
+        #         tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
+        #     elif (key == 'done_color'):
+        #         tag.text = '153,254,255'   # ->   "<name>Sokrates<\name>"
+        #     elif (key == 'font_color'):
+        #         tag.text = '255,255,255'   # ->   "<name>Sokrates<\name>"
+        #     else:
+        #         tag.text = ''
+        #     new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
 
         ET.Element(section_categories).append(new_ET_category)
 
@@ -334,7 +347,7 @@ def tl_file_generate (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     section_category = timeline_ET_root.find('.//categories[1]')
     tl_categories_add(section_category, lo_new_events)
 
-    exit(0)
+    # exit(0)
     # alle items, die noch nicht in der >*.timeline< waren.
     for d_event in lo_new_events:
         tl_event_add(section_events, d_event)
