@@ -22,11 +22,17 @@ import datetime
 import difflib
 # import distance
 import itertools
+import yaml
 import xml.etree.ElementTree as ET
 
 # from >timeline.xsd<
 event_fieldnames = ("start", "end", "text", "progress", "fuzzy", "locked", "ends_today",
-                    "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone")
+                    "value", "description", "hyperlink", "alert", "icon", "default_color", "milestone")
+
+# Configuration files
+# https://martin-thoma.com/configuration-files-in-python/      (u.a. YAML)
+# https://www.w3schools.io/file/yaml-python-read-write/
+# https://stackoverflow.com/questions/1726802/what-is-the-difference-between-yaml-and-json
 
 class bcolors:
     HEADER = '\033[95m'
@@ -39,7 +45,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     
-def prnt_yellow (strg, str_end ='\n'):
+def print_yellow (strg, str_end ='\n'):
     print (f"{bcolors.WARNING} " + strg + f"{bcolors.ENDC}", end = str_end)
 
 def prettify(elem):
@@ -115,7 +121,7 @@ def get_events_from_ET (ET_root):
         ev_text     = xml_event.find('text').text.strip()
         ev_start    = xml_event.find('start').text.strip()
         ev_end      = xml_event.find('end').text.strip()
-        ev_category = xml_event.find('category').text.strip()
+        ev_category = xml_event.find('value').text.strip()
         # ev_unknown  = xml_event.find('unknown').text.strip()
         event = [ev_text, ev_start, ev_end, ev_category]
         lo_events.append(event)
@@ -206,27 +212,38 @@ def get_color_palette():
     # lo_color = list(Colors().__dict__.values())
     palette = []
     lo_color = list(Colors().__dict__.values())
-    print ('type(lo_color) = ', type(lo_color))
+    # print ('type(lo_color) = ', type(lo_color))
     for color in lo_color:
         color = str(color)
         palette.append(color[1:-1].replace(' ', ''))
-        print ('type(color) = ', type(color),'>' + color[1:-1] + '<')
+        # print ('type(color) = ', type(color),'>' + color[1:-1] + '<')
 
     # exit (0)
     return palette
 
 # tl == timeline
+def tl_category_tag_make(new_ET_category, name, value):
+    tag        = ET.Element(name)
+    tag.text   = value               # i.e. "<name><\name>"
+    new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
+    return new_ET_category
+
+# tl == timeline
 def tl_categories_add(section_categories, lo_new_events):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
     # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
-    # werden sie an die section >category< angehängt.
+    # werden sie an die section >value< angehängt.
     
     lo_color = itertools.cycle(get_color_palette())
 
     lo_category = []
     for d_event in lo_new_events:
-        if d_event['category'] not in lo_category:
-            lo_category.append(d_event['category'])
+        if d_event['value'] not in lo_category:
+            lo_category.append(d_event['value'])
+
+    # with open("value.txt", mode="w", encoding='utf8') as file:
+    #     for cnt, value in enumerate(lo_category):
+    #         file.write(value + '\n')
 
     for idx in range (len(lo_category[1:-1])):
         category_1 = lo_category[idx]
@@ -234,31 +251,52 @@ def tl_categories_add(section_categories, lo_new_events):
         # "{:.2f}".format(z)
         ratio     = diff_ratio(category_1[:25], category_2[:25])
         ratio_str = "{:.5f}".format(ratio, 5)
-        # prnt_yellow (ratio_str, ' ')
+        # print_yellow (ratio_str, ' ')
         # print (len(lo_category[1:-1]), category_1, ' // ',  category_2)
         if (ratio < 0.54):
-            prnt_yellow (ratio_str, ' ')
+            # print_yellow (ratio_str, ' ')
             category_color = str(next(lo_color))
             
         else:
-            print       (ratio_str, end = '  ')
-        print ('  ' + category_1, '\n           ' +  category_2)
+            pass
+        #     print       (ratio_str, end = '  ')
+        # print ('  ' + category_1, '\n           ' +  category_2)
         
     category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
     for cnt, category in enumerate(lo_category):
-        new_ET_category = ET.SubElement(section_categories, 'category')
-        ET.Element('name').text            = category               # i.e. "<name><\name>"
-        ET.Element('color').text           = str(next(lo_color))  # i.e. "<name><\name>"
-        ET.Element('progress_color').text  = '153,254,255'        # i.e. "<name><\name>"
-        ET.Element('done_color').text      = '153,254,255'        # i.e. "<name><\name>"
-        ET.Element('font_color').text      = '255,255,255'        # i.e. "<name><\name>"
+    
+        new_ET_category = ET.SubElement(section_categories, 'value')
+
+        # ET.Element('name').text            = value               # i.e. "<name><\name>"
+        # new_ET_category.append(ET.Element('name'))  # ->   "<event><name>Sokrates<\name><\event>"
+        # tag        = ET.Element('name')
+        # tag.text   = value               # i.e. "<name><\name>"
         # new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
-        new_ET_category.append(new_ET_category)
-        
+
+        new_ET_category = tl_category_tag_make(new_ET_category, name = 'name'          , value= category)
+        color = str(next(lo_color))  # i.e. "<name><\name>"
+        new_ET_category = tl_category_tag_make(new_ET_category, name = 'color'         , value= color)
+        new_ET_category = tl_category_tag_make(new_ET_category, name = 'progress_color', value= '153,254,255')
+        new_ET_category = tl_category_tag_make(new_ET_category, name = 'done_color'    , value= '153,254,255')
+        new_ET_category = tl_category_tag_make(new_ET_category, name = 'font_color'    , value= '255,255,255')
+
+
+        # ET.Element('color').text           = str(next(lo_color))  # i.e. "<name><\name>"
+        # new_ET_category.append(ET.Element('color'))  # ->   "<event><name>Sokrates<\name><\event>"
+        # ET.Element('progress_color').text  = '153,254,255'        # i.e. "<name><\name>"
+        # new_ET_category.append(ET.Element('progress_color'))  # ->   "<event><name>Sokrates<\name><\event>"
+        # ET.Element('done_color').text      = '153,254,255'        # i.e. "<name><\name>"
+        # new_ET_category.append(ET.Element('done_color'))  # ->   "<event><name>Sokrates<\name><\event>"
+        # ET.Element('font_color').text      = '255,255,255'        # i.e. "<name><\name>"
+        # new_ET_category.append(ET.Element('font_color'))  # ->   "<event><name>Sokrates<\name><\event>"
+
+
+        # new_ET_category = ET.SubElement(section_categories, 'value')
         # for cnt, key in enumerate(category_keys):
         #     tag = ET.Element(key)     # i.e. "<name><\name>"
         #     if (key == 'name'):
-        #         tag.text = category   # ->   "<name>Sokrates<\name>"
+        #         tag.text               = value   # ->   "<name>Sokrates<\name>"
+        #         # ET.Element(key).text   = value
         #     elif (key == 'color'):
         #         # https://stackoverflow.com/questions/36657151/cycle-through-list-items
         #         tag.text = category_color
@@ -309,7 +347,7 @@ def write_all_events_to_csv_file (fn_out_csv, event_list, new_event_list):
     finally:
         f.close()
 
-def tl_file_generate (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
+def timeline_file_make (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     """
     1)a) Liest eine *.timeline-File (xml),
       b) parsed diese xml-Struktur
@@ -343,7 +381,7 @@ def tl_file_generate (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     section_events = timeline_ET_root.find('.//events[1]')
     # print ('section_events.text: >' + section_events.text + '<')
 
-    # Es werden alle Kategorien eruiert und in die section >category< eingefügt
+    # Es werden alle Kategorien eruiert und in die section >value< eingefügt
     section_category = timeline_ET_root.find('.//categories[1]')
     tl_categories_add(section_category, lo_new_events)
 
@@ -378,6 +416,6 @@ if __name__ == "__main__":
     fn_csv_in  = csv_basename + '.'     + csv_extension
     fn_csv_out = csv_basename + '_out.' + csv_extension
 
-    tl_file_generate (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out)
+    timeline_file_make (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out)
 
     print ("\nEND: timeline_csv_2_xml.py")
