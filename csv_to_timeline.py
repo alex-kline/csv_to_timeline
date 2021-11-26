@@ -226,6 +226,7 @@ def tl_category_tag_make(new_ET_category, name, value):
     tag        = ET.Element(name)
     tag.text   = value               # i.e. "<name><\name>"
     new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
+    ET.dump (new_ET_category)
     return new_ET_category
 
 # tl == timeline
@@ -262,16 +263,10 @@ def tl_categories_add(section_categories, lo_new_events):
         #     print       (ratio_str, end = '  ')
         # print ('  ' + category_1, '\n           ' +  category_2)
         
-    category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
+    # category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
     for cnt, category in enumerate(lo_category):
     
         new_ET_category = ET.SubElement(section_categories, 'value')
-
-        # ET.Element('name').text            = value               # i.e. "<name><\name>"
-        # new_ET_category.append(ET.Element('name'))  # ->   "<event><name>Sokrates<\name><\event>"
-        # tag        = ET.Element('name')
-        # tag.text   = value               # i.e. "<name><\name>"
-        # new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
 
         new_ET_category = tl_category_tag_make(new_ET_category, name = 'name'          , value= category)
         color = str(next(lo_color))  # i.e. "<name><\name>"
@@ -279,6 +274,12 @@ def tl_categories_add(section_categories, lo_new_events):
         new_ET_category = tl_category_tag_make(new_ET_category, name = 'progress_color', value= '153,254,255')
         new_ET_category = tl_category_tag_make(new_ET_category, name = 'done_color'    , value= '153,254,255')
         new_ET_category = tl_category_tag_make(new_ET_category, name = 'font_color'    , value= '255,255,255')
+
+        # ET.Element('name').text            = value               # i.e. "<name><\name>"
+        # new_ET_category.append(ET.Element('name'))  # ->   "<event><name>Sokrates<\name><\event>"
+        # tag        = ET.Element('name')
+        # tag.text   = value               # i.e. "<name><\name>"
+        # new_ET_category.append(tag)  # ->   "<event><name>Sokrates<\name><\event>"
 
 
         # ET.Element('color').text           = str(next(lo_color))  # i.e. "<name><\name>"
