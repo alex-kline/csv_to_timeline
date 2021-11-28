@@ -250,6 +250,19 @@ def tl_append_tag_to_element(ET_Element, element_name, element_value):
     return ET_Element
 
 # tl == timeline
+def tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_category):
+    category = do_name_value['name']
+    color    = do_name_value['color']
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='name'           , element_value= category)
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='color'          , element_value= color)
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='progress_color' , element_value='153,254,255')
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='done_color'     , element_value='153,254,255')
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='font_color'     , element_value='255,255,255')
+    if category in do_category:
+        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='parent'     , element_value=do_category[category])
+    return new_ET_category
+
+# tl == timeline
 def tl_categories_add(section_categories, lo_new_events):
     # In der >*.timeline< müssen in der Section >categories<
     # alle Kategorien stehen, die bei den events
@@ -260,8 +273,6 @@ def tl_categories_add(section_categories, lo_new_events):
     # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
     # werden sie an die section >element_value< angehängt.
     
-    lo_color = itertools.cycle(get_color_palette())
-
     lo_long_category  = []
     lo_split_category = []
     
@@ -304,126 +315,88 @@ def tl_categories_add(section_categories, lo_new_events):
             main_category = long_category.strip()
             lo_category.append(main_category)
         else:
-            # cnt_of_categories >= 2
-            # d.h. es gibt eine Oberkategorie     zur Subkategorie ==
-            # d.h. es gibt eine 'Parent-kategorie zur Subkategorie ==
-            # Mache also in einem Dict einen entsprechenden Eintrag:
-            # Unterkategorie: Oberkategorie.
-            #
-            #  Unterteile: hänge die beiden letzten Kategorien an  ...
-            sub_category    = split_category[cnt_of_categories - 1].strip()
-            parent_category = split_category[cnt_of_categories - 2].strip()
-        
-            #  1. das dict: { ..., sub_category : parent_category, ...}
-            #  type(do_category) == Dictionary
-            if sub_category not in do_category:
-                do_category[sub_category] = parent_category
-        
-            #  2. an die Liste aller Kategorien.
-            #    Cave: die Reihenfolge ist wichtig: erst die parent_category dann die sub_category
-            #  type(lo_category) == List
-            if parent_category not in lo_category:
-                lo_category.append(parent_category)
-            if sub_category not in lo_category:
-                lo_category.append(sub_category)
+            for cnt in range(2, cnt_of_categories + 1):
+                # print_yellow (str(cnt_of_categories) + ' ########## ' + str(cnt))
+                pass
+                # cnt_of_categories >= 2
+                # d.h. es gibt eine Oberkategorie     zur Subkategorie ==
+                # d.h. es gibt eine 'Parent-kategorie zur Subkategorie ==
+                # Mache also in einem Dict einen entsprechenden Eintrag:
+                # Unterkategorie: Oberkategorie.
+                #
+                #  Unterteile: hänge die beiden letzten Kategorien an  ...
+                # sub_category    = split_category[cnt_of_categories - 1].strip()
+                # parent_category = split_category[cnt_of_categories - 2].strip()
+                sub_category    = split_category[cnt - 1].strip()
+                parent_category = split_category[cnt - 2].strip()
+            
+                #  1. das dict: { ..., sub_category : parent_category, ...}
+                #  type(do_category) == Dictionary
+                if sub_category not in do_category:
+                    do_category[sub_category] = parent_category
+            
+                #  2. an die Liste aller Kategorien.
+                #    Cave: die Reihenfolge ist wichtig: erst die parent_category dann die sub_category
+                #  type(lo_category) == List
+                if parent_category not in lo_category:
+                    lo_category.append(parent_category)
+                if sub_category not in lo_category:
+                    lo_category.append(sub_category)
 
 
-    # for long_category in lo_long_category:
-    #     # Eruiere die Kategorie und zerlege sie in Teile '#'
-    #
-    #     split_category = long_category.split('#')
-    #     split_category = [ item.strip() for item in split_category]
-    #
-    #     cnt_of_categories = len(split_category)
-    #
-    #     # print_yellow(str(cnt_of_categories) + '   ' + str(split_category) )
-    #
-    #     # Nur ein Teil => Hauptkategorie
-    #     if (cnt_of_categories == 1):
-    #         main_category = long_category.strip()
-    #         lo_category.append(main_category)
-    #     else:
-    #         #  Unterteile: hänge die beiden letzten Kategorien an  ...
-    #         sub_category    = split_category[cnt_of_categories - 1].strip()
-    #         parent_category = split_category[cnt_of_categories - 2].strip()
-    #
-    #         #  1. das dict: { ..., sub_category : parent_category, ...}
-    #         #  type(do_category) == Dictionary
-    #         if sub_category not in do_category:
-    #             do_category[sub_category] = parent_category
-    #
-    #         #  2. an die Liste aller Kategorien.
-    #         #    Cave: die Reihenfolge ist wichtig: erst die parent_category dann die sub_category
-    #         #  type(lo_category) == List
-    #         if parent_category not in lo_category:
-    #             lo_category.append(parent_category)
-    #         if sub_category not in lo_category:
-    #             lo_category.append(sub_category)
-
-
-    # #  Für jeden event:
-    # for d_event in lo_new_events:
-    #     # Eruiere die Kategorie und zerlege sie in Teile '#'
-    #
-    #     lo_split_category = d_event['category'].split('#')
-    #     cnt_of_categories = len(lo_split_category)
-    #
-    #     # Nur ein Teil => Hauptkategorie
-    #     if (cnt_of_categories == 1):
-    #         main_category = d_event['category'].strip()
-    #         lo_category.append(main_category)
-    #     else:
-    #         #  Unterteile: hänge die beiden letzten Kategorien an  ...
-    #         sub_category    = lo_split_category[cnt_of_categories - 1].strip()
-    #         parent_category = lo_split_category[cnt_of_categories - 2].strip()
-    #
-    #         #  1. das dict: { ..., sub_category : parent_category, ...}
-    #         #  type(do_category) == Dictionary
-    #         if sub_category not in do_category:
-    #             do_category[sub_category] = parent_category
-    #
-    #         #  2. an die Liste aller Kategorien.
-    #         #    Cave: die Reihenfolge ist wichtig: erst die parent_category dann die sub_category
-    #         #  type(lo_category) == List
-    #         if parent_category not in lo_category:
-    #             lo_category.append(parent_category)
-    #         if sub_category not in lo_category:
-    #             lo_category.append(sub_category)
-
-    # print_yellow(str(do_category))
-    print('\nlo_split_category:')
-    print_yellow(str(lo_split_category))
-    print('\nlo_category:')
-    print_yellow(str(lo_category))
 
     with open("lo_category.txt", mode="w", encoding='utf8') as file:
         for cnt, value in enumerate(lo_category):
             file.write(value + '\n')
 
     # <parent>Einführung</parent>
-    for idx in range (len(lo_category[1:-1])):
-        category_1 = lo_category[idx]
-        category_2 = lo_category[idx + 1]
-        # "{:.2f}".format(z)
-        ratio     = diff_ratio(category_1[:25], category_2[:25])
-        ratio_str = "{:.5f}".format(ratio, 5)
-        if (ratio < 0.54):
-            category_color = str(next(lo_color))
-        else:
-            pass
+    # for idx in range (len(lo_category[1:-1])):
+    #     category_1 = lo_category[idx]
+    #     category_2 = lo_category[idx + 1]
+    #     # "{:.2f}".format(z)
+    #     ratio     = diff_ratio(category_1[:25], category_2[:25])
+    #     ratio_str = "{:.5f}".format(ratio, 5)
+    #     if (ratio < 0.54):
+    #         category_color = str(next(lo_color))
+    #     else:
+    #         pass
         
     # category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
+
+    lo_main_category = [item for item in lo_split_category if (len(item) == 1)]
+
+    # print('\ndo_category:')
+    # print_yellow(str(do_category))
+    print('\nlo_split_category:')
+    print_yellow(str(lo_split_category))
+    # print('\nlo_category:')
+    # print_yellow(str(lo_category))
+    print('\nlo_main_category:')
+    print_yellow(str(lo_main_category))
+
+
+    lo_color = itertools.cycle(get_color_palette())
     for idx, category in enumerate(lo_category):
         new_ET_category = ET.SubElement(section_categories, 'category')
 
-        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='name', element_value= category)
-        color = str(next(lo_color))  # i.e. "<element_name><\element_name>"
-        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='color', element_value= color)
-        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='progress_color', element_value='153,254,255')
-        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='done_color', element_value='153,254,255')
-        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='font_color', element_value='255,255,255')
-        if category in do_category:
-            new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='parent', element_value=do_category[category])
+        if [category] in lo_main_category:
+            lo_color = itertools.cycle(get_color_palette())
+            color    = '66,66,66'
+        else:
+            color = str(next(lo_color))  # i.e. "<element_name><\element_name>"
+
+        do_name_value = {}
+        do_name_value['name']  = category
+        do_name_value['color'] = color
+        new_ET_category = tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_category)
+
+        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='name'           , element_value= category)
+        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='color'          , element_value= color)
+        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='progress_color' , element_value='153,254,255')
+        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='done_color'     , element_value='153,254,255')
+        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='font_color'     , element_value='255,255,255')
+        # if category in do_category:
+        #     new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='parent'     , element_value=do_category[category])
 
         ET.Element(section_categories).append(new_ET_category)
 
