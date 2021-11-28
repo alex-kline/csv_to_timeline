@@ -154,6 +154,11 @@ def canonical_main_category(str_category):
         # print (str_category + ' -> ' + new_str_category)
     return str_category
 
+def split_category(long_category):
+    lo_split_category = long_category.split('#')
+    lo_split_category = [item.strip() for item in lo_split_category]
+    return lo_split_category
+
 def new_d_event():
     # return dictionary with keys according to event_fieldnames in >timeline.xsd<
     # all values are preset = ''
@@ -218,7 +223,7 @@ def get_events_from_csv_file (fn_in_csv):
                 elif (key == 'end'):      d_event['end']      = canonical_date(row['end'])
                 elif (key == 'category'): d_event['category'] = canonical_main_category(row['category'])
                 else:
-                    if ('Rishi' in d_event[key]): print_fail(d_event[key])
+                    pass
                     if ('(' in d_event[key]) or (')' in d_event[key]):
                         # https://stackoverflow.com/questions/46798641/how-to-only-allow-digits-letters-and-certain-characters-in-a-string-in-python
                         # elif not re.match('^[a-zA-Z0-9()$%_/.]*$',password):
@@ -230,12 +235,13 @@ def get_events_from_csv_file (fn_in_csv):
                         # Ich weiß auch nicht, wie man die Menge an für 'timeline.exe' legitimen Buchstaben herausfindet,
                         #   wenn das überhaupt irgendwie definiert ist (außer indirekt über Laufzeit-Fehler).
                         # Die wenig elegante if-Klausel jedenfalls schließt die Klammern aus:
-                        print_fail   ('Error ' , '')
-                        print        ('(>def tl_events_add())<: Illegal char in csv-column >' + key + '< : >', end = '')
+                        print_yellow   ('Input error ' , '')
+                        print        ('>def get_events_from_csv_file()<: unwanted char in csv-column >' + key + '< : >', end = '')
                         print_yellow (str(d_event[key]), '')
-                        print        ('<')
                         d_event[key] = d_event[key].replace('(', '').replace(')', '')
-                    
+                        print        ('<  corrected to  >', end = '')
+                        print_yellow (d_event[key].strip(), '')
+                        print ('<')
             lo_new_event.append(d_event)
     finally:
         f.close()
@@ -303,9 +309,17 @@ def tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_catego
         new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='parent'     , element_value=do_category[category])
     return new_ET_category
 
+def get_split_category_from_long_category(long_category):
+    split_category = long_category.split('#')
+    split_category = [item.strip() for item in lo_split_category]
+    return split_category
+
 def get_lists_of_category(lo_new_events):
     lo_long_category  = []
     lo_split_category = []
+
+    # lo_long_category  = []  #  zB:   6. - Antike # Vorsokratiker 600–400 v. Chr. # Andere Philosophen der Vorsokratik
+    # lo_split_category = []  #  zB: ['6. - Antike', 'Vorsokratiker 600–400 v. Chr.', 'Andere Philosophen der Vorsokratik']
 
     for d_event in lo_new_events:
         # Eruiere alle Original-Kategorien
@@ -315,7 +329,7 @@ def get_lists_of_category(lo_new_events):
 
         split_category = long_category.split('#')
         split_category = [item.strip() for item in split_category]
-        
+
         if (split_category not in lo_split_category):
             lo_split_category.append(split_category)
         if ([split_category[0]] not in lo_split_category):
@@ -392,9 +406,9 @@ def tl_categories_add(section_categories, lo_new_events):
     # Die Kategorien, die an erster Stelle der Kategorien Kette stehen
     lo_main_category = [item for item in lo_split_category if (len(item) == 1)]
 
-    # with open("lo_main_category.txt", mode="w", encoding='utf8') as file:
-    #     for cnt, value in enumerate(lo_main_category):
-    #         file.write(value[0] + '\n')
+    with open("lo_main_category.txt", mode="w", encoding='utf8') as file:
+        for cnt, value in enumerate(lo_main_category):
+            file.write(value[0] + '\n')
     # -------
     
             
@@ -453,9 +467,10 @@ def tl_events_add(section_events, lo_new_event):
         # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='ends_today'   , element_value='False')
         
         # print (d_event['category'])
-        lo_split_category = d_event['category'].split('#')
-        cnt_of_categories = len(lo_split_category)
-        d_event_category = lo_split_category[cnt_of_categories-1].strip()
+        long_category = d_event['category']
+        split_category    = long_category.split('#')
+        cnt_of_categories = len(split_category)
+        d_event_category  = split_category[cnt_of_categories-1].strip()
 
         # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='category'     , element_value=d_event['category'])
         new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='category'        , element_value=d_event_category)
