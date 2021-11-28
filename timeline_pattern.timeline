@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<timeline>
+  <version>2.5.0 (67ed963f67ff 2021-10-05)</version>
+  <timetype>gregoriantime</timetype>
+  <categories>
+  </categories>
+  <events>
+  </events>
+  <view>
+    <displayed_period>
+      <start>-490-06-08 19:37:31</start>
+      <end>-315-03-12 15:48:08</end>
+    </displayed_period>
+    <hidden_categories>
+    </hidden_categories>
+  </view>
+</timeline>

@@ -33,10 +33,11 @@ from PIL import ImageColor
 
 # from >timeline.xsd<
 event_keys = ["start", "end", "text", "progress", "fuzzy", "locked", "ends_today",
-                    "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone"]
+              "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone"]
 
-event_tags = ["start", "end", "text", "progress", "fuzzy", "locked", "ends_today",
-                    "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone"]
+# .. but in the >*.timeline< file one finds additional keys  ("fuzzy", "fuzzy_start"):
+event_keys = ["start", "end", "text", "progress", "fuzzy", "fuzzy_start", "fuzzy_end", "locked", "ends_today",
+              "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone"]
 
 
 # Configuration files
@@ -71,9 +72,11 @@ def make_do_main_epoches():
     #     for cnt, value in enumerate(do_main_epoches):
     #         file.write(str(do_main_epoches) + '\n')
 
-    
 def print_yellow (strg, str_end ='\n'):
     print (f"{bcolors.WARNING} " + strg + f"{bcolors.ENDC}", end = str_end)
+
+def print_fail (strg, str_end ='\n'):
+    print (f"{bcolors.FAIL} " + strg + f"{bcolors.ENDC}", end = str_end)
 
 def prettify(elem):
     """Return a pretty-printed XML string for the Element."""
@@ -214,6 +217,25 @@ def get_events_from_csv_file (fn_in_csv):
                 if   (key == 'start'):    d_event['start']    = canonical_date(row['start'])
                 elif (key == 'end'):      d_event['end']      = canonical_date(row['end'])
                 elif (key == 'category'): d_event['category'] = canonical_main_category(row['category'])
+                else:
+                    if ('Rishi' in d_event[key]): print_fail(d_event[key])
+                    if ('(' in d_event[key]) or (')' in d_event[key]):
+                        # https://stackoverflow.com/questions/46798641/how-to-only-allow-digits-letters-and-certain-characters-in-a-string-in-python
+                        # elif not re.match('^[a-zA-Z0-9()$%_/.]*$',password):
+                        # '^[a-zA-Z0-9()$%_/.,]*$'
+                        # if (key != 'category') and (re.match('^[()]*$', d_event[key])):
+                        #
+                        # Das Blöde ist, dass '(' und ')' bei 'timeline.exe' nicht im Namen des events auftauchen dürfen -
+                        #   aber wer weiß das schon? Mich hat es einen Lebenstag gekostet.
+                        # Ich weiß auch nicht, wie man die Menge an für 'timeline.exe' legitimen Buchstaben herausfindet,
+                        #   wenn das überhaupt irgendwie definiert ist (außer indirekt über Laufzeit-Fehler).
+                        # Die wenig elegante if-Klausel jedenfalls schließt die Klammern aus:
+                        print_fail   ('Error ' , '')
+                        print        ('(>def tl_events_add())<: Illegal char in csv-column >' + key + '< : >', end = '')
+                        print_yellow (str(d_event[key]), '')
+                        print        ('<')
+                        d_event[key] = d_event[key].replace('(', '').replace(')', '')
+                    
             lo_new_event.append(d_event)
     finally:
         f.close()
@@ -291,8 +313,6 @@ def get_lists_of_category(lo_new_events):
         if long_category not in lo_long_category:
             lo_long_category.append(long_category)
 
-        print ("d_event['text'] ", d_event['text'])
-        print ('long_category: ', long_category)
         split_category = long_category.split('#')
         split_category = [item.strip() for item in split_category]
         
@@ -314,25 +334,8 @@ def tl_categories_add(section_categories, lo_new_events):
     # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
     # werden sie an die section >element_value< angehängt.
     
-    # lo_long_category  = []
-    # lo_split_category = []
-    #
-    # for d_event in lo_new_events:
-    #     # Eruiere alle Original-Kategorien
-    #     long_category = d_event['category']
-    #     if long_category not in lo_long_category:
-    #         lo_long_category.append(long_category)
-    #
-    #     split_long_category = long_category.split('#')
-    #     split_long_category = [ item.strip() for item in split_long_category]
-    #
-    #     if (split_long_category not in lo_split_category):
-    #         lo_split_category.append(split_long_category)
-    #     if ([split_long_category[0]] not in lo_split_category):
-    #         lo_split_category.append([split_long_category[0]])
-
-    lo_long_category  = []  #
-    lo_split_category = []  #
+    # lo_long_category  = []  #  zB:   6. - Antike # Vorsokratiker 600–400 v. Chr. # Andere Philosophen der Vorsokratik
+    # lo_split_category = []  #  zB: ['6. - Antike', 'Vorsokratiker 600–400 v. Chr.', 'Andere Philosophen der Vorsokratik']
 
     lo_split_category, lo_long_category = get_lists_of_category(lo_new_events)
 
@@ -389,10 +392,9 @@ def tl_categories_add(section_categories, lo_new_events):
     # Die Kategorien, die an erster Stelle der Kategorien Kette stehen
     lo_main_category = [item for item in lo_split_category if (len(item) == 1)]
 
-    with open("lo_main_category.txt", mode="w", encoding='utf8') as file:
-        for cnt, value in enumerate(lo_main_category):
-            file.write(value[0] + '\n')
-
+    # with open("lo_main_category.txt", mode="w", encoding='utf8') as file:
+    #     for cnt, value in enumerate(lo_main_category):
+    #         file.write(value[0] + '\n')
     # -------
     
             
@@ -427,59 +429,46 @@ def tl_categories_add(section_categories, lo_new_events):
 def tl_events_add(section_events, lo_new_event):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
     # Die Inhalte des dict >d_event< werden an die section >events< angehängt.
-
-    # https://stackoverflow.com/questions/46798641/how-to-only-allow-digits-letters-and-certain-characters-in-a-string-in-python
-    # elif not re.match('^[a-zA-Z0-9()$%_/.]*$',password):
-    # '^[a-zA-Z0-9()$%_/.,]*$'
-    
-    allowed_chars = []
     
     for d_event in lo_new_event:
-        for key in d_event.keys():
-            # if (key != 'category') and (re.match('^[()]*$', d_event[key])):
-            #
-            # Das Blöde ist, dass '(' und ')' nicht im Namen des events auftauchen dürfen -
-            #   aber wer weiß das schon? Mich hat es einen Lebenstag gekostet.
-            # Ich weiß auch nicht, wie man die Menge an legitimen Buchstaben definiert,
-            #   wenn das überhaupt irgendwie definiert ist.
-            # Die wenig elegante if-Klausel jedenfalls schließt die Klammern aus:
+        # event_keys = ["start", "end", "text", "progress", "fuzzy", "fuzzy_start", "fuzzy_end", "locked", "ends_today",
+        #               "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone"]
 
-            if (key != 'category') and ('(' in d_event[key]) or (')' in d_event[key]):
-                print        ('key= >' + key + '<  d_event[key]: >', end = '')
-                print_yellow (str(d_event[key]), '')
-                print        ('<')
-                break                #    <---| https://stackoverflow.com/questions/653509/breaking-out-of-nested-loops
-        else:                        #    <---| https://stackoverflow.com/questions/653509/breaking-out-of-nested-loops
-            new_ET_event = ET.SubElement(section_events, 'event')
+        new_ET_event = ET.SubElement(section_events, 'event')
+
+        new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='start'           , element_value=d_event['start'])
+        new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='end'             , element_value=d_event['end'])
+        new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='text'            , element_value=d_event['text'])
+        new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='progress'        , element_value='0')
+
+        if (d_event['fuzzy'] == 'True'):
+            new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='fuzzy'       , element_value='False')
+            new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='fuzzy_start' , element_value='True')
+            new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='fuzzy_end'   , element_value='True')
+            # print (key, d_event['fuzzy'], end = '')
+            # if (d_event['fuzzy'] == 'True'):
+        # print()
+
+        # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='locked'       , element_value='False')
+        # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='ends_today'   , element_value='False')
         
-            # event_keys = ["start", "end", "text", "progress", "fuzzy", "locked", "ends_today","category",
-            #               "description", "hyperlink", "alert", "icon", "default_color", "milestone"]
-        
-            ET.Element(section_events).append(new_ET_event)
-        
-            new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='start'        , element_value=d_event['start'])
-            new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='end'          , element_value=d_event['end'])
-            new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='text'         , element_value=d_event['text'])
-        
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='progress'     , element_value='0')
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='fuzzy'        , element_value='False')
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='locked'       , element_value='False')
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='ends_today'   , element_value='False')
-            
-            lo_split_category = d_event['category'].split('#')
-            cnt_of_categories = len(lo_split_category)
-            d_event_category = lo_split_category[cnt_of_categories-1].strip()
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='category'     , element_value=d_event['category'])
-            new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='category'     , element_value=d_event_category)
-        
-            # # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='category', element_value='')
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='description'  , element_value='')
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='hyperlink'    , element_value='')
-            # # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='alert', element_value='')
-            # # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='icon', element_value='')
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='default_color', element_value='200,200,200')
-            # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='milestone'    , element_value='')
+        # print (d_event['category'])
+        lo_split_category = d_event['category'].split('#')
+        cnt_of_categories = len(lo_split_category)
+        d_event_category = lo_split_category[cnt_of_categories-1].strip()
+
+        # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='category'     , element_value=d_event['category'])
+        new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='category'        , element_value=d_event_category)
     
+        # # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='category', element_value='')
+        # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='description'  , element_value='')
+        # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='hyperlink'    , element_value='')
+        # # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='alert', element_value='')
+        # # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='icon', element_value='')
+        # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='default_color', element_value='200,200,200')
+        # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='milestone'    , element_value='')
+        ET.Element(section_events).append(new_ET_event)
+
     # print_yellow ('\n allowed_chars: ' + str(sorted(allowed_chars)))
 
 
@@ -521,9 +510,9 @@ def timeline_file_make (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     lo_event = get_events_from_ET (timeline_ET_root)   # aus *.timeline
 
     # Timeline sortiert die Kategorien/Einträge alphabetisch - was v.a. bei den Hauptepochen unschön ist.
-    # Die Hauptepochen sollen also durchnummeriert werden. (zB 'Renaissance' => '3. - Renaissance' )
+    # Die Hauptepochen sollen/müssen deswegen durchnummeriert werden. (zB 'Renaissance' => '3. - Renaissance' )
     # Um die Hauptepochen beim Einlesen der csv-File entsprechend modifizieren zu können,
-    # dass durchnummeriert werdne können, erstmals ein geeignetes Dict erstellen:
+    # dass sie durchnummeriert werden können, vorbereitend erst ein geeignetes Dictionary erstellen:
     make_do_main_epoches()
 
     # Alle in der File >*.csv< vorhandenen Events lesen:
@@ -536,9 +525,9 @@ def timeline_file_make (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     section_events = timeline_ET_root.find('.//events[1]')
     # print ('section_events.text: >' + section_events.text + '<')
 
-    # Es werden alle vorhandenen Kategorien eruiert
+    # Es werden alle schon vorhandenen Kategorien eruiert
     section_category = timeline_ET_root.find('.//categories[1]')
-    # und in die section >element_value< eingefügt (????)
+    # und in die section >element_value< eingefügt (?)
     tl_categories_add(section_category, lo_new_event)
 
     # alle items, die noch nicht in der >*.timeline< waren.
@@ -547,27 +536,26 @@ def timeline_file_make (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     # format XML tree: https://stackoverflow.com/questions/749796/pretty-printing-xml-in-python
     ET.indent(timeline_ET_root)    # format
     # ET.dump(timeline_ET_root)      # print it to console
+
     # *.timeline-File schreiben:
     timeline_ET_tree.write(fn_xml_out, encoding="utf-8", xml_declaration=True)
     
 if __name__ == "__main__":
     print ("BEGIN: timeline_csv_2_xml.py")
     
-    tl_basename   = '2013-12-28_Aufklaerung_00'
+    tl_basename   = 'timeline_pattern'
     tl_extension  = 'timeline'
 
-    csv_basename  = '2013-12-28_Aufklaerung_00'
-    csv_basename  = 'WP-de_Zeittafel_zur_Philosophiegeschichte_SMALL'
+    # csv_basename  = 'WP-de_Zeittafel_zur_Philosophiegeschichte_SMALL'
     csv_basename  = 'WP-de_Zeittafel_zur_Philosophiegeschichte'
-    
+    # csv_basename  = 'WP-de_Zeittafel_zur_Philosophiegeschichte_SMALL'
     csv_extension = 'csv'
 
     fn_csv_in     = csv_basename + '.'     + csv_extension
     fn_csv_out    = csv_basename + '_out.' + csv_extension
 
     fn_tl_in     = tl_basename + '.' + tl_extension
-    # fn_tl_out    = tl_basename + '_out.' + tl_extension
-    fn_tl_out    = csv_basename + '_out.' + tl_extension
+    fn_tl_out    = csv_basename + '.' + tl_extension
 
     timeline_file_make (fn_tl_in, fn_tl_out, fn_csv_in, fn_csv_out)
 
