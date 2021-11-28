@@ -214,10 +214,10 @@ def get_color_palette():
         
         def __init__(self):
             self.orange      = 230,159,0
-            self.sky_blue    = 86,180, 233
+            self.sky_blue    = 86,180,233
             self.bluish_green= 0,158,115
-            self.yellow      = 240, 228,66
-            self.sky_blue    = 0, 114, 178
+            self.yellow      = 240,228,66
+            self.sky_blue    = 0,114,178
             self.vermillion  = 213,94,0
             pass
 
@@ -290,12 +290,9 @@ def tl_categories_add(section_categories, lo_new_events):
         if ([split_category[0]] not in lo_split_category):
             lo_split_category.append([split_category[0]])
 
-
-
     lo_long_category.sort()
     lo_split_category.sort()
 
-    lo_category_lists = []
     lo_category       = []
     do_category       = {}
 
@@ -307,8 +304,6 @@ def tl_categories_add(section_categories, lo_new_events):
         split_category = [ item.strip() for item in split_category]
     
         cnt_of_categories = len(split_category)
-    
-        # print_yellow(str(cnt_of_categories) + '   ' + str(split_category) )
     
         # Nur ein Teil => Hauptkategorie
         if (cnt_of_categories == 1):
@@ -343,36 +338,21 @@ def tl_categories_add(section_categories, lo_new_events):
                 if sub_category not in lo_category:
                     lo_category.append(sub_category)
 
-
-
     with open("lo_category.txt", mode="w", encoding='utf8') as file:
         for cnt, value in enumerate(lo_category):
             file.write(value + '\n')
 
-    # <parent>Einführung</parent>
-    # for idx in range (len(lo_category[1:-1])):
-    #     category_1 = lo_category[idx]
-    #     category_2 = lo_category[idx + 1]
-    #     # "{:.2f}".format(z)
-    #     ratio     = diff_ratio(category_1[:25], category_2[:25])
-    #     ratio_str = "{:.5f}".format(ratio, 5)
-    #     if (ratio < 0.54):
-    #         category_color = str(next(lo_color))
-    #     else:
-    #         pass
-        
-    # category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
-
+    # Die Kategorien, die an erster Stelle der Kategorien Kette stehen
     lo_main_category = [item for item in lo_split_category if (len(item) == 1)]
 
     # print('\ndo_category:')
     # print_yellow(str(do_category))
-    print('\nlo_split_category:')
-    print_yellow(str(lo_split_category))
+    # print('\nlo_split_category:')
+    # print_yellow(str(lo_split_category))
     # print('\nlo_category:')
     # print_yellow(str(lo_category))
-    print('\nlo_main_category:')
-    print_yellow(str(lo_main_category))
+    # print('\nlo_main_category:')
+    # print_yellow(str(lo_main_category))
 
 
     lo_color = itertools.cycle(get_color_palette())
@@ -381,25 +361,16 @@ def tl_categories_add(section_categories, lo_new_events):
 
         if [category] in lo_main_category:
             lo_color = itertools.cycle(get_color_palette())
-            color    = '66,66,66'
+            color    = '88,88,88'
         else:
             color = str(next(lo_color))  # i.e. "<element_name><\element_name>"
 
+        # category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
         do_name_value = {}
         do_name_value['name']  = category
         do_name_value['color'] = color
         new_ET_category = tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_category)
-
-        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='name'           , element_value= category)
-        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='color'          , element_value= color)
-        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='progress_color' , element_value='153,254,255')
-        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='done_color'     , element_value='153,254,255')
-        # new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='font_color'     , element_value='255,255,255')
-        # if category in do_category:
-        #     new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='parent'     , element_value=do_category[category])
-
         ET.Element(section_categories).append(new_ET_category)
-
 
 
 def tl_events_add(section_events, lo_new_event):
@@ -414,15 +385,14 @@ def tl_events_add(section_events, lo_new_event):
     
     for d_event in lo_new_event:
         for key in d_event.keys():
-            # print(type(d_event[key]), end = '  ')
-            # print(d_event[key], end = '  ')
             # if (key != 'category') and (re.match('^[()]*$', d_event[key])):
+            #
+            # Das Blöde ist, dass '(' und ')' nicht im Namen des events auftauchen dürfen -
+            #   aber wer weiß das schon? Mich hat es einen Lebenstag gekostet.
+            # Ich weiß auch nicht, wie man die Menge an legitimen Buchstaben definiert,
+            #   wenn das überhaupt irgendwie definiert ist.
+            # Die wenig elegante if-Klausel jedenfalls schließt die Klammern aus:
 
-            # l_str = d_event[key]
-            # for chr in l_str:
-            #     if not chr in allowed_chars:
-            #         # print_yellow (chr, '')
-            #         allowed_chars.append(chr)
             if (key != 'category') and ('(' in d_event[key]) or (')' in d_event[key]):
                 print        ('key= >' + key + '<  d_event[key]: >', end = '')
                 print_yellow (str(d_event[key]), '')
