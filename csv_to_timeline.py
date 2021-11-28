@@ -1,4 +1,5 @@
 #! /usr/bin/python
+# -*- coding: utf-8 -*-
 # -*- coding: latin-1 -*-
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
@@ -8,7 +9,7 @@ __date__ ="$29.12.2013 14:03:33$"
 
 """
 Sinn und Zweck:
-Zusammenführen einer +/- vorhandenen *.timeline xml-File mit
+ZusammenfÃ¼hren einer +/- vorhandenen *.timeline xml-File mit
 den Daten einer *.csv FIle, in der weitere ''events'' im csv-Format stehen.
 """
 
@@ -26,6 +27,9 @@ import re
 import yaml
 import xml.etree.ElementTree as ET
 from natsort import natsorted
+from collections import namedtuple
+from PIL import ImageColor
+
 
 # from >timeline.xsd<
 event_keys = ["start", "end", "text", "progress", "fuzzy", "locked", "ends_today",
@@ -50,6 +54,23 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+# do == dict of ...
+do_main_epoches = {}
+
+def make_do_main_epoches():
+    global do_main_epoches
+    # do_main_epoches = {}
+    sequence_of_main_epoches = ['20. Jahrhundert', '19. Jahrhundert', 'FrÃ¼he Neuzeit 1600â€“1800',
+                                'Renaissance und Reformation 1400â€“1600', 'Mittelalter', 'Antike']
+    
+    for cnt, epoche in enumerate(sequence_of_main_epoches):
+        do_main_epoches[epoche] = str(cnt + 1) + '. - ' + epoche
+
+    # with open("lo_main_category_2.txt", mode="w", encoding='utf8') as file:
+    #     for cnt, value in enumerate(do_main_epoches):
+    #         file.write(str(do_main_epoches) + '\n')
+
     
 def print_yellow (strg, str_end ='\n'):
     print (f"{bcolors.WARNING} " + strg + f"{bcolors.ENDC}", end = str_end)
@@ -121,6 +142,15 @@ def diff_ratio(str_1, str_2):
     diff = difflib.SequenceMatcher(None, str_1, str_2).ratio()
     return diff
 
+def canonical_main_category(str_category):
+    split_category = str_category.split('#')
+    split_category = [item.strip() for item in split_category]
+    key = split_category[0]
+    if key in do_main_epoches.keys():
+        str_category = str_category.replace(key, do_main_epoches[key])
+        # print (str_category + ' -> ' + new_str_category)
+    return str_category
+
 def new_d_event():
     # return dictionary with keys according to event_fieldnames in >timeline.xsd<
     # all values are preset = ''
@@ -181,10 +211,9 @@ def get_events_from_csv_file (fn_in_csv):
                         d_event[key] = row[key]
                 except:
                     pass
-                if (key == 'start'):
-                    d_event['start'] = canonical_date(row['start'])
-                elif (key == 'end'):
-                    d_event['end']   = canonical_date(row['end'])
+                if   (key == 'start'):    d_event['start']    = canonical_date(row['start'])
+                elif (key == 'end'):      d_event['end']      = canonical_date(row['end'])
+                elif (key == 'category'): d_event['category'] = canonical_main_category(row['category'])
             lo_new_event.append(d_event)
     finally:
         f.close()
@@ -194,47 +223,37 @@ def get_events_from_csv_file (fn_in_csv):
 def get_color_palette():
     # https://stackoverflow.com/questions/876853/generating-color-ranges-in-python
     # https://seaborn.pydata.org/tutorial/color_palettes.html
+
     # https://www.kaggle.com/asimislam/python-colors-color-cmap-palette
     # https://coolors.co/
     # https://pymolwiki.org/index.php/Colorblindfriendly
     # https://github.com/drammock/colorblind
     # https://davidmathlogic.com/colorblind/#%23D81B60-%231E88E5-%23FFC107-%23004D40
     # https://davidmathlogic.com/colorblind/#%23000000-%23E69F00-%2356B4E9-%23009E73-%23F0E442-%230072B2-%23D55E00-%23CC79A7
-    
     # https://www.nature.com/articles/nmeth.1618
-    
-    class Colors:
-        # https://www.nature.com/articles/nmeth.1618/figures/2
-        # orange      = (230,159,0)
-        # sky_blue    = (86,180, 233)
-        # bluish_green= (0,158,115)
-        # yellow      = (240, 228,66)
-        # sky_blue    = (0, 114, 178)
-        # vermillion  = (213,94,0)
-        
-        def __init__(self):
-            self.orange      = 230,159,0
-            self.sky_blue    = 86,180,233
-            self.bluish_green= 0,158,115
-            self.yellow      = 240,228,66
-            self.sky_blue    = 0,114,178
-            self.vermillion  = 213,94,0
-            pass
 
-    # print (Colors().__dict__)
-    # print (Colors.__dict__)
-    # https://stackoverflow.com/questions/12409714/python-class-members
-    # https://stackoverflow.com/questions/16228248/how-can-i-get-list-of-values-from-dict
-    # lo_color = list(Colors().__dict__.values())
+    # colors according to :
+    # https://personal.sron.nl/~pault/
+    colorset = 'light'
+    colorset = 'medium-contrast'
+    if colorset == 'medium-contrast':
+        # cset = namedtuple('Mcset', 'light_blue dark_blue light_yellow dark_red dark_yellow light_red black')
+        # act_cset =  cset('#6699CC', '#004488', '#EECC66', '#994455', '#997700', '#EE99AA', '#000000')
+        cset = namedtuple('Mcset', 'light_blue dark_blue light_yellow dark_red dark_yellow light_red')
+        act_cset =  cset('#6699CC', '#004488', '#EECC66', '#994455', '#997700', '#EE99AA')
+
+
+    if colorset == 'light':
+        cset = namedtuple('Lcset', 'light_blue orange light_yellow pink light_cyan mint pear olive pale_grey black')
+        act_cset = cset('#77AADD', '#EE8866', '#EEDD88', '#FFAABB', '#99DDFF', '#44BB99', '#BBCC33', '#AAAA00', '#DDDDDD', '#000000')
+
     palette = []
-    lo_color = list(Colors().__dict__.values())
-    # print ('type(lo_color) = ', type(lo_color))
-    for color in lo_color:
-        color = str(color)
-        palette.append(color[1:-1].replace(' ', ''))
-        # print ('type(color) = ', type(color),'>' + color[1:-1] + '<')
-
-    # exit (0)
+    for item in act_cset:
+        color =  str(ImageColor.getrgb(item))                              # timeline wants rgb -> convert to rgb
+        color =  color.replace(' ', '').replace('(', '').replace(')', '')  # format color-string
+        palette.append(color)
+            
+    # print(palette)
     return palette
 
 # tl == timeline
@@ -262,33 +281,60 @@ def tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_catego
         new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='parent'     , element_value=do_category[category])
     return new_ET_category
 
-# tl == timeline
-def tl_categories_add(section_categories, lo_new_events):
-    # In der >*.timeline< müssen in der Section >categories<
-    # alle Kategorien stehen, die bei den events
-    # 1. in d_event['category']    ... oder
-    # 2. in d_event['parent']      auftauchen
-    
-    # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
-    # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
-    # werden sie an die section >element_value< angehängt.
-    
+def get_lists_of_category(lo_new_events):
     lo_long_category  = []
     lo_split_category = []
-    
+
     for d_event in lo_new_events:
         # Eruiere alle Original-Kategorien
         long_category = d_event['category']
         if long_category not in lo_long_category:
             lo_long_category.append(long_category)
 
+        print ("d_event['text'] ", d_event['text'])
+        print ('long_category: ', long_category)
         split_category = long_category.split('#')
-        split_category = [ item.strip() for item in split_category]
-
+        split_category = [item.strip() for item in split_category]
+        
         if (split_category not in lo_split_category):
             lo_split_category.append(split_category)
         if ([split_category[0]] not in lo_split_category):
             lo_split_category.append([split_category[0]])
+
+    return lo_split_category, lo_long_category
+
+# tl == timeline
+def tl_categories_add(section_categories, lo_new_events):
+    # In der >*.timeline< mÃ¼ssen in der Section >categories<
+    # alle Kategorien stehen, die bei den events
+    # 1. in d_event['category']    ... oder
+    # 2. in d_event['parent']      auftauchen
+    
+    # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
+    # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
+    # werden sie an die section >element_value< angehÃ¤ngt.
+    
+    # lo_long_category  = []
+    # lo_split_category = []
+    #
+    # for d_event in lo_new_events:
+    #     # Eruiere alle Original-Kategorien
+    #     long_category = d_event['category']
+    #     if long_category not in lo_long_category:
+    #         lo_long_category.append(long_category)
+    #
+    #     split_long_category = long_category.split('#')
+    #     split_long_category = [ item.strip() for item in split_long_category]
+    #
+    #     if (split_long_category not in lo_split_category):
+    #         lo_split_category.append(split_long_category)
+    #     if ([split_long_category[0]] not in lo_split_category):
+    #         lo_split_category.append([split_long_category[0]])
+
+    lo_long_category  = []  #
+    lo_split_category = []  #
+
+    lo_split_category, lo_long_category = get_lists_of_category(lo_new_events)
 
     lo_long_category.sort()
     lo_split_category.sort()
@@ -296,34 +342,30 @@ def tl_categories_add(section_categories, lo_new_events):
     lo_category       = []
     do_category       = {}
 
-    #  Für jede Kategorie:
+    #  FÃ¼r jede Kategorie:
     for long_category in lo_long_category:
         # Eruiere die Kategorie und zerlege sie in Teile '#'
     
-        split_category = long_category.split('#')
-        split_category = [ item.strip() for item in split_category]
+        split_long_category = long_category.split('#')
+        split_long_category = [ item.strip() for item in split_long_category]
     
-        cnt_of_categories = len(split_category)
+        cnt_of_split_long_category = len(split_long_category)
     
-        # Nur ein Teil => Hauptkategorie
-        if (cnt_of_categories == 1):
+        if (cnt_of_split_long_category == 1):
+            # Nur ein einzige Eintrag => Hauptkategorie
             main_category = long_category.strip()
             lo_category.append(main_category)
         else:
-            for cnt in range(2, cnt_of_categories + 1):
-                # print_yellow (str(cnt_of_categories) + ' ########## ' + str(cnt))
-                pass
-                # cnt_of_categories >= 2
+            for cnt in range(2, cnt_of_split_long_category + 1):
+                # cnt_of_split_long_categories >= 2
                 # d.h. es gibt eine Oberkategorie     zur Subkategorie ==
                 # d.h. es gibt eine 'Parent-kategorie zur Subkategorie ==
                 # Mache also in einem Dict einen entsprechenden Eintrag:
                 # Unterkategorie: Oberkategorie.
                 #
-                #  Unterteile: hänge die beiden letzten Kategorien an  ...
-                # sub_category    = split_category[cnt_of_categories - 1].strip()
-                # parent_category = split_category[cnt_of_categories - 2].strip()
-                sub_category    = split_category[cnt - 1].strip()
-                parent_category = split_category[cnt - 2].strip()
+                #  Unterteile: hÃ¤nge jeweils zwei Kategorien in der Liste an  ...
+                sub_category    = split_long_category[cnt - 1].strip()
+                parent_category = split_long_category[cnt - 2].strip()
             
                 #  1. das dict: { ..., sub_category : parent_category, ...}
                 #  type(do_category) == Dictionary
@@ -338,13 +380,22 @@ def tl_categories_add(section_categories, lo_new_events):
                 if sub_category not in lo_category:
                     lo_category.append(sub_category)
 
+    # -------
     with open("lo_category.txt", mode="w", encoding='utf8') as file:
         for cnt, value in enumerate(lo_category):
             file.write(value + '\n')
 
+    # -------
     # Die Kategorien, die an erster Stelle der Kategorien Kette stehen
     lo_main_category = [item for item in lo_split_category if (len(item) == 1)]
 
+    with open("lo_main_category.txt", mode="w", encoding='utf8') as file:
+        for cnt, value in enumerate(lo_main_category):
+            file.write(value[0] + '\n')
+
+    # -------
+    
+            
     # print('\ndo_category:')
     # print_yellow(str(do_category))
     # print('\nlo_split_category:')
@@ -375,7 +426,7 @@ def tl_categories_add(section_categories, lo_new_events):
 
 def tl_events_add(section_events, lo_new_event):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
-    # Die Inhalte des dict >d_event< werden an die section >events< angehängt.
+    # Die Inhalte des dict >d_event< werden an die section >events< angehÃ¤ngt.
 
     # https://stackoverflow.com/questions/46798641/how-to-only-allow-digits-letters-and-certain-characters-in-a-string-in-python
     # elif not re.match('^[a-zA-Z0-9()$%_/.]*$',password):
@@ -387,11 +438,11 @@ def tl_events_add(section_events, lo_new_event):
         for key in d_event.keys():
             # if (key != 'category') and (re.match('^[()]*$', d_event[key])):
             #
-            # Das Blöde ist, dass '(' und ')' nicht im Namen des events auftauchen dürfen -
-            #   aber wer weiß das schon? Mich hat es einen Lebenstag gekostet.
-            # Ich weiß auch nicht, wie man die Menge an legitimen Buchstaben definiert,
-            #   wenn das überhaupt irgendwie definiert ist.
-            # Die wenig elegante if-Klausel jedenfalls schließt die Klammern aus:
+            # Das BlÃ¶de ist, dass '(' und ')' nicht im Namen des events auftauchen dÃ¼rfen -
+            #   aber wer weiÃŸ das schon? Mich hat es einen Lebenstag gekostet.
+            # Ich weiÃŸ auch nicht, wie man die Menge an legitimen Buchstaben definiert,
+            #   wenn das Ã¼berhaupt irgendwie definiert ist.
+            # Die wenig elegante if-Klausel jedenfalls schlieÃŸt die Klammern aus:
 
             if (key != 'category') and ('(' in d_event[key]) or (')' in d_event[key]):
                 print        ('key= >' + key + '<  d_event[key]: >', end = '')
@@ -469,6 +520,12 @@ def timeline_file_make (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     # Alle in der File >*.timeline< vorhandenen Events in die Liste >lo_event< aufnehmen
     lo_event = get_events_from_ET (timeline_ET_root)   # aus *.timeline
 
+    # Timeline sortiert die Kategorien/EintrÃ¤ge alphabetisch - was v.a. bei den Hauptepochen unschÃ¶n ist.
+    # Die Hauptepochen sollen also durchnummeriert werden. (zB 'Renaissance' => '3. - Renaissance' )
+    # Um die Hauptepochen beim Einlesen der csv-File entsprechend modifizieren zu kÃ¶nnen,
+    # dass durchnummeriert werdne kÃ¶nnen, erstmals ein geeignetes Dict erstellen:
+    make_do_main_epoches()
+
     # Alle in der File >*.csv< vorhandenen Events lesen:
     lo_new_event = get_events_from_csv_file (fn_csv_in)
     # Zur Kontrolle die neue event_List als csv-File abspeichern:
@@ -481,7 +538,7 @@ def timeline_file_make (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
 
     # Es werden alle vorhandenen Kategorien eruiert
     section_category = timeline_ET_root.find('.//categories[1]')
-    # und in die section >element_value< eingefügt (????)
+    # und in die section >element_value< eingefÃ¼gt (????)
     tl_categories_add(section_category, lo_new_event)
 
     # alle items, die noch nicht in der >*.timeline< waren.
@@ -495,9 +552,6 @@ def timeline_file_make (fn_xml_in, fn_xml_out, fn_csv_in, fn_csv_out):
     
 if __name__ == "__main__":
     print ("BEGIN: timeline_csv_2_xml.py")
-    get_color_palette()
-    
-    # exit (0)
     
     tl_basename   = '2013-12-28_Aufklaerung_00'
     tl_extension  = 'timeline'
@@ -514,7 +568,6 @@ if __name__ == "__main__":
     fn_tl_in     = tl_basename + '.' + tl_extension
     # fn_tl_out    = tl_basename + '_out.' + tl_extension
     fn_tl_out    = csv_basename + '_out.' + tl_extension
-
 
     timeline_file_make (fn_tl_in, fn_tl_out, fn_csv_in, fn_csv_out)
 
