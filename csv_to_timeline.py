@@ -29,6 +29,7 @@ import xml.etree.ElementTree as ET
 from natsort import natsorted
 from collections import namedtuple
 from PIL import ImageColor
+from operator import itemgetter
 
 
 # from >timeline.xsd<
@@ -264,16 +265,14 @@ def get_color_palette():
     # https://personal.sron.nl/~pault/
     colorset = 'light'
     colorset = 'medium-contrast'
-    if colorset == 'medium-contrast':
-        # cset = namedtuple('Mcset', 'light_blue dark_blue light_yellow dark_red dark_yellow light_red black')
-        # act_cset =  cset('#6699CC', '#004488', '#EECC66', '#994455', '#997700', '#EE99AA', '#000000')
-        cset = namedtuple('Mcset', 'light_blue dark_blue light_yellow dark_red dark_yellow light_red')
-        act_cset =  cset('#6699CC', '#004488', '#EECC66', '#994455', '#997700', '#EE99AA')
-
 
     if colorset == 'light':
-        cset = namedtuple('Lcset', 'light_blue orange light_yellow pink light_cyan mint pear olive pale_grey black')
+        cset     = namedtuple('Lcset', 'light_blue orange light_yellow pink light_cyan mint pear olive pale_grey black')
         act_cset = cset('#77AADD', '#EE8866', '#EEDD88', '#FFAABB', '#99DDFF', '#44BB99', '#BBCC33', '#AAAA00', '#DDDDDD', '#000000')
+
+    if colorset == 'medium-contrast':
+        cset     = namedtuple('Mcset', 'dark_blue light_yellow dark_yellow light_red light_blue dark_red')
+        act_cset = cset('#004488', '#EECC66', '#997700', '#EE99AA', '#6699CC', '#994455')
 
     palette = []
     for item in act_cset:
@@ -309,26 +308,28 @@ def tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_catego
         new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='parent'     , element_value=do_category[category])
     return new_ET_category
 
-def get_split_category_from_long_category(long_category):
+def get_split_category_from(long_category):
     split_category = long_category.split('#')
-    split_category = [item.strip() for item in lo_split_category]
+    split_category = [item.strip() for item in split_category]
     return split_category
 
-def get_lists_of_category(lo_new_events):
+def get_lists_of_category(lo_new_event):
     lo_long_category  = []
     lo_split_category = []
 
     # lo_long_category  = []  #  zB:   6. - Antike # Vorsokratiker 600–400 v. Chr. # Andere Philosophen der Vorsokratik
     # lo_split_category = []  #  zB: ['6. - Antike', 'Vorsokratiker 600–400 v. Chr.', 'Andere Philosophen der Vorsokratik']
+    
+    # Sortierung der events nach dict-Element 'category'
+    lo_new_event.sort(key=itemgetter('category'))
 
-    for d_event in lo_new_events:
+    for d_event in lo_new_event:
         # Eruiere alle Original-Kategorien
         long_category = d_event['category']
         if long_category not in lo_long_category:
             lo_long_category.append(long_category)
 
-        split_category = long_category.split('#')
-        split_category = [item.strip() for item in split_category]
+        split_category = get_split_category_from(long_category)
 
         if (split_category not in lo_split_category):
             lo_split_category.append(split_category)
@@ -345,8 +346,8 @@ def tl_categories_add(section_categories, lo_new_events):
     # 2. in d_event['parent']      auftauchen
     
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
-    # Erst werden die unterschiedlichen Kategorien herausgefiltert, dann
-    # werden sie an die section >element_value< angehängt.
+    # Erst werden die unterschiedlichen Kategorien eruiert (und in zwei Listen geschrieben),
+    # dann werden sie an die section >element_value< angehängt.
     
     # lo_long_category  = []  #  zB:   6. - Antike # Vorsokratiker 600–400 v. Chr. # Andere Philosophen der Vorsokratik
     # lo_split_category = []  #  zB: ['6. - Antike', 'Vorsokratiker 600–400 v. Chr.', 'Andere Philosophen der Vorsokratik']
@@ -403,34 +404,35 @@ def tl_categories_add(section_categories, lo_new_events):
             file.write(value + '\n')
 
     # -------
-    # Die Kategorien, die an erster Stelle der Kategorien Kette stehen
-    lo_main_category = [item for item in lo_split_category if (len(item) == 1)]
-
+    # Hauptkategorien == Kategorien die an erster Stelle in einer Kategorien-Kette stehen
+    lo_main_category = [item[0] for item in lo_split_category if (len(item) >= 1)]
     with open("lo_main_category.txt", mode="w", encoding='utf8') as file:
         for cnt, value in enumerate(lo_main_category):
             file.write(value[0] + '\n')
-    # -------
-    
-            
-    # print('\ndo_category:')
-    # print_yellow(str(do_category))
-    # print('\nlo_split_category:')
-    # print_yellow(str(lo_split_category))
-    # print('\nlo_category:')
-    # print_yellow(str(lo_category))
-    # print('\nlo_main_category:')
-    # print_yellow(str(lo_main_category))
+    print(str(lo_main_category))
 
+    # -------
+    # Subkategorien   == Kategorien die an zweiter Stelle der Kategorien-Kette stehen
+    lo_sub_category  = [item[1] for item in lo_split_category if (len(item) >= 2)]
+    print(str(lo_sub_category))
+    old_sub_category = ''
 
     lo_color = itertools.cycle(get_color_palette())
     for idx, category in enumerate(lo_category):
         new_ET_category = ET.SubElement(section_categories, 'category')
+    
+        print(str(category))
 
-        if [category] in lo_main_category:
+        if category in lo_main_category:
             lo_color = itertools.cycle(get_color_palette())
             color    = '88,88,88'
+        elif category in lo_sub_category:
+            lo_color = itertools.cycle(get_color_palette())
+            color = str(next(lo_color))
         else:
             color = str(next(lo_color))  # i.e. "<element_name><\element_name>"
+
+
 
         # category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
         do_name_value = {}
@@ -440,10 +442,11 @@ def tl_categories_add(section_categories, lo_new_events):
         ET.Element(section_categories).append(new_ET_category)
 
 
+
 def tl_events_add(section_events, lo_new_event):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
     # Die Inhalte des dict >d_event< werden an die section >events< angehängt.
-    
+
     for d_event in lo_new_event:
         # event_keys = ["start", "end", "text", "progress", "fuzzy", "fuzzy_start", "fuzzy_end", "locked", "ends_today",
         #               "category", "description", "hyperlink", "alert", "icon", "default_color", "milestone"]
@@ -459,16 +462,12 @@ def tl_events_add(section_events, lo_new_event):
             new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='fuzzy'       , element_value='False')
             new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='fuzzy_start' , element_value='True')
             new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='fuzzy_end'   , element_value='True')
-            # print (key, d_event['fuzzy'], end = '')
-            # if (d_event['fuzzy'] == 'True'):
-        # print()
 
         # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='locked'       , element_value='False')
         # new_ET_event = tl_append_tag_to_element(new_ET_event, element_name='ends_today'   , element_value='False')
         
-        # print (d_event['category'])
         long_category = d_event['category']
-        split_category    = long_category.split('#')
+        split_category = get_split_category_from(long_category)
         cnt_of_categories = len(split_category)
         d_event_category  = split_category[cnt_of_categories-1].strip()
 
