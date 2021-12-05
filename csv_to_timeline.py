@@ -267,23 +267,33 @@ def get_color_palette():
     colorset = 'medium-contrast'
 
     if colorset == 'light':
-        cset     = namedtuple('Lcset', 'light_blue orange light_yellow pink light_cyan mint pear olive pale_grey black')
-        act_cset = cset('#77AADD', '#EE8866', '#EEDD88', '#FFAABB', '#99DDFF', '#44BB99', '#BBCC33', '#AAAA00', '#DDDDDD', '#000000')
+        cset          = namedtuple('Lcset', 'light_blue orange light_yellow pink light_cyan mint pear olive pale_grey black')
+        foregrnd_cset = cset('#77AADD', '#EE8866', '#EEDD88', '#FFAABB', '#99DDFF', '#44BB99', '#BBCC33', '#AAAA00', '#DDDDDD', '#000000')
+        font_cset     = cset('#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#DDDDDD', '#000000', '#DDDDDD')
 
     if colorset == 'medium-contrast':
-        cset     = namedtuple('Mcset', 'dark_blue light_yellow dark_yellow light_red light_blue dark_red')
-        act_cset = cset('#004488', '#EECC66', '#997700', '#EE99AA', '#6699CC', '#994455')
+        cset          = namedtuple('Mcset', 'dark_blue light_yellow dark_yellow light_red light_blue dark_red')
+        foregrnd_cset = cset('#004488', '#EECC66', '#997700', '#EE99AA', '#6699CC', '#994455')
+        font_cset     = cset('#DDDDDD', '#000000', '#000000', '#000000', '#000000', '#DDDDDD')
 
-    palette = []
-    for item in act_cset:
+    foregrnd_palette = []
+    for item in foregrnd_cset:
         color =  str(ImageColor.getrgb(item))                              # timeline wants rgb -> convert to rgb
         color =  color.replace(' ', '').replace('(', '').replace(')', '')  # format color-string
-        palette.append(color)
-            
-    # print(palette)
+        foregrnd_palette.append(color)
+
+    font_palette = []
+    for item in font_cset:
+        color =  str(ImageColor.getrgb(item))                              # timeline wants rgb -> convert to rgb
+        color =  color.replace(' ', '').replace('(', '').replace(')', '')  # format color-string
+        font_palette.append(color)
+
+    # palette == zip-object (kind of list of list) with foreground color - font color.
+    palette = list(zip(foregrnd_palette, font_palette))
+
     return palette
 
-# tl == time line
+# tl == timeline
 def tl_append_tag_to_element(ET_Element, element_name, element_value):
     # creates new tag to ET.Element with name: >element_name<
     # sets value of new tag to                 >element_value<
@@ -297,15 +307,16 @@ def tl_append_tag_to_element(ET_Element, element_name, element_value):
 
 # tl == timeline
 def tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_category):
-    category = do_name_value['name']
-    color    = do_name_value['color']
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='name'           , element_value= category)
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='color'          , element_value= color)
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='progress_color' , element_value='153,254,255')
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='done_color'     , element_value='153,254,255')
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='font_color'     , element_value='255,255,255')
+    category   = do_name_value['name']
+    color      = do_name_value['color']
+    font_color = do_name_value['font_color']
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='name'           , element_value = category)
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='color'          , element_value = color)
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='progress_color' , element_value ='153,254,255')
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='done_color'     , element_value ='153,254,255')
+    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='font_color'     , element_value = font_color)
     if category in do_category:
-        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name='parent'     , element_value=do_category[category])
+        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name = 'parent'     , element_value = do_category[category])
     return new_ET_category
 
 def get_split_category_from(long_category):
@@ -417,27 +428,47 @@ def tl_categories_add(section_categories, lo_new_events):
     print(str(lo_sub_category))
     old_sub_category = ''
 
-    lo_color = itertools.cycle(get_color_palette())
+    # Wenn >itertools.cycle( Liste )< aufgerufen wird, dann wird die
+    # Liste zurück gesetzt, dh >next(lo_color)< liefert beim nächsten Aufruf
+    # das erste Element der Liste zurück und kreist dann durch die Liste.
+    #
+    # Sinn des ganzen: wenn eine neue Hauptkategorie erscheint, dann wird die
+    # Farbe auf >color = '88,88,88'< == Grau zurückgesetzt. Ansonsten, falls
+    # keine Haupt- sondern neue Unterkategorie, wird neue Farbe aus der Liste
+    # gewählt.
+
+    # lo_foregrnd_font_color = palette == zip-object (kind of list of list) with foreground color - font color.
+    lo_foregrnd_font_color = itertools.cycle(get_color_palette())
     for idx, category in enumerate(lo_category):
         new_ET_category = ET.SubElement(section_categories, 'category')
     
         print(str(category))
 
-        if category in lo_main_category:
-            lo_color = itertools.cycle(get_color_palette())
-            color    = '88,88,88'
+        if category in lo_main_category:   # == Hauptkategorie
+            # lo_color = itertools.cycle(get_color_palette())
+            lo_foregrnd_font_color = itertools.cycle(get_color_palette())
+            color      = '88,88,88'
+            font_color = '221,221,221'
         elif category in lo_sub_category:
-            lo_color = itertools.cycle(get_color_palette())
-            color = str(next(lo_color))
+            # lo_color = itertools.cycle(get_color_palette())
+            lo_foregrnd_font_color = itertools.cycle(get_color_palette())
+            # color = str(next(lo_color))
+            lo_color   = next(lo_foregrnd_font_color)
+            color      = str(lo_color[0])
+            font_color = str(lo_color[1])
         else:
-            color = str(next(lo_color))  # i.e. "<element_name><\element_name>"
+            # color = str(next(lo_color))
+            lo_color   = next(lo_foregrnd_font_color)
+            color      = str(lo_color[0])
+            font_color = str(lo_color[1])
 
 
 
         # category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
         do_name_value = {}
-        do_name_value['name']  = category
-        do_name_value['color'] = color
+        do_name_value['name']       = category
+        do_name_value['color']      = color
+        do_name_value['font_color'] = font_color
         new_ET_category = tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_category)
         ET.Element(section_categories).append(new_ET_category)
 
