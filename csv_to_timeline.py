@@ -283,7 +283,7 @@ def get_color_palette():
     # print(palette)
     return palette
 
-# tl == timeline
+# tl == time line
 def tl_append_tag_to_element(ET_Element, element_name, element_value):
     # creates new tag to ET.Element with name: >element_name<
     # sets value of new tag to                 >element_value<
