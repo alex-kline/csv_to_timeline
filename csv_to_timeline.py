@@ -79,20 +79,6 @@ def print_yellow (strg, str_end ='\n'):
 def print_fail (strg, str_end ='\n'):
     print (f"{bcolors.FAIL} " + strg + f"{bcolors.ENDC}", end = str_end)
 
-def prettify(elem):
-    """Return a pretty-printed XML string for the Element."""
-    raw_string = ET.tostring(elem, 'utf-8')
-    reparsed = minidom.parseString(raw_string)
-    return reparsed.toprettyxml(indent="  ")    
-
-def print_dict(dict):
-    if dict.items():
-        for key, value in dict.items():
-            print (key.strip(), end = '')
-            for val in value:
-                print (val, end = '')
-            print
-
 def canonical_date(year):
     # returns canonical date str >YYYY-MM-DD hh:mm:sec<
     # '-624'   =>  '-624-01-01 00:00:00'
@@ -140,12 +126,6 @@ def canonical_date(year):
             pass
         return year
 
-def diff_ratio(str_1, str_2):
-    # https://stackoverflow.com/questions/6690739/high-performance-fuzzy-string-comparison-in-python-use-levenshtein-or-difflib
-    # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
-    diff = difflib.SequenceMatcher(None, str_1, str_2).ratio()
-    return diff
-
 def canonical_main_category(str_category):
     split_category = str_category.split('#')
     split_category = [item.strip() for item in split_category]
@@ -154,11 +134,6 @@ def canonical_main_category(str_category):
         str_category = str_category.replace(key, do_main_epoches[key])
         # print (str_category + ' -> ' + new_str_category)
     return str_category
-
-def split_category(long_category):
-    lo_split_category = long_category.split('#')
-    lo_split_category = [item.strip() for item in lo_split_category]
-    return lo_split_category
 
 def new_d_event():
     # return dictionary with keys according to event_fieldnames in >timeline.xsd<
@@ -472,8 +447,6 @@ def tl_categories_add(section_categories, lo_new_events):
         new_ET_category = tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_category)
         ET.Element(section_categories).append(new_ET_category)
 
-
-
 def tl_events_add(section_events, lo_new_event):
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
     # Die Inhalte des dict >d_event< werden an die section >events< angehängt.
@@ -515,7 +488,6 @@ def tl_events_add(section_events, lo_new_event):
         ET.Element(section_events).append(new_ET_event)
 
     # print_yellow ('\n allowed_chars: ' + str(sorted(allowed_chars)))
-
 
 def write_all_events_to_csv_file (fn_out_csv, lo_event, lo_new_event):
     # fn_csv_out, lo_event, lo_new_event
