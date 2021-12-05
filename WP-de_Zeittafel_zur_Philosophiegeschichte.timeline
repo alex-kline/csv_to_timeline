@@ -20,22 +20,14 @@
     </category>
     <category>
       <name>Analytische Philosophie</name>
-      <color>0,68,136</color>
-      <progress_color>153,254,255</progress_color>
-      <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
-      <parent>1. - 20. Jahrhundert</parent>
-    </category>
-    <category>
-      <name>Erkenntnistheorie</name>
       <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>0,0,0</font_color>
-      <parent>Analytische Philosophie</parent>
+      <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
-      <name>Ethik</name>
+      <name>Erkenntnistheorie</name>
       <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
@@ -43,7 +35,7 @@
       <parent>Analytische Philosophie</parent>
     </category>
     <category>
-      <name>Logik</name>
+      <name>Ethik</name>
       <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
@@ -51,7 +43,7 @@
       <parent>Analytische Philosophie</parent>
     </category>
     <category>
-      <name>Neopragmatismus</name>
+      <name>Logik</name>
       <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
@@ -59,7 +51,7 @@
       <parent>Analytische Philosophie</parent>
     </category>
     <category>
-      <name>Ontologie</name>
+      <name>Neopragmatismus</name>
       <color>153,68,85</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
@@ -67,7 +59,7 @@
       <parent>Analytische Philosophie</parent>
     </category>
     <category>
-      <name>Philosophie des Geistes</name>
+      <name>Ontologie</name>
       <color>0,68,136</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
@@ -75,32 +67,40 @@
       <parent>Analytische Philosophie</parent>
     </category>
     <category>
-      <name>Chinesische Philosophie</name>
-      <color>0,68,136</color>
+      <name>Philosophie des Geistes</name>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
+      <parent>Analytische Philosophie</parent>
+    </category>
+    <category>
+      <name>Chinesische Philosophie</name>
+      <color>153,119,0</color>
+      <progress_color>153,254,255</progress_color>
+      <done_color>153,254,255</done_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Existenzphilosophie</name>
-      <color>0,68,136</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Feministische Philosophie</name>
-      <color>0,68,136</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Geschichts- und Kulturkritik</name>
-      <color>0,68,136</color>
+      <color>153,68,85</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>221,221,221</font_color>
@@ -116,39 +116,39 @@
     </category>
     <category>
       <name>Jüdische Philosophie</name>
-      <color>0,68,136</color>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Kommunitarismus</name>
-      <color>0,68,136</color>
+      <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Kritischer Rationalismus</name>
-      <color>0,68,136</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Kritischer Realismus</name>
-      <color>0,68,136</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Kyōto-Schule</name>
-      <color>0,68,136</color>
+      <color>153,68,85</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>221,221,221</font_color>
@@ -164,39 +164,39 @@
     </category>
     <category>
       <name>Medien- und Technikphilosophie</name>
-      <color>0,68,136</color>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Methodischer Konstruktivismus</name>
-      <color>0,68,136</color>
+      <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Naturwissenschaftler</name>
-      <color>0,68,136</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Neomarxismus und Kritische Theorie</name>
-      <color>0,68,136</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Neuer Realismus</name>
-      <color>0,68,136</color>
+      <color>153,68,85</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>221,221,221</font_color>
@@ -212,39 +212,39 @@
     </category>
     <category>
       <name>Philosophische Anthropologie</name>
-      <color>0,68,136</color>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Phänomenologie</name>
-      <color>0,68,136</color>
+      <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Politische Philosophie</name>
-      <color>0,68,136</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Postmoderne</name>
-      <color>0,68,136</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Radikaler Konstruktivismus</name>
-      <color>0,68,136</color>
+      <color>153,68,85</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>221,221,221</font_color>
@@ -260,39 +260,39 @@
     </category>
     <category>
       <name>Religionsphilosophie</name>
-      <color>0,68,136</color>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Sozialphilosophie</name>
-      <color>0,68,136</color>
+      <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Strukturalismus und Poststrukturalismus</name>
-      <color>0,68,136</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Transzendentalphilosophie</name>
-      <color>0,68,136</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>1. - 20. Jahrhundert</parent>
     </category>
     <category>
       <name>Wissenschaftstheorie</name>
-      <color>0,68,136</color>
+      <color>153,68,85</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>221,221,221</font_color>
@@ -315,23 +315,23 @@
     </category>
     <category>
       <name>Deutscher Idealismus</name>
-      <color>0,68,136</color>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>2. - 19. Jahrhundert</parent>
     </category>
     <category>
       <name>Hegelianismus</name>
-      <color>0,68,136</color>
+      <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>2. - 19. Jahrhundert</parent>
     </category>
     <category>
       <name>Ausland</name>
-      <color>238,204,102</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>0,0,0</font_color>
@@ -339,7 +339,7 @@
     </category>
     <category>
       <name>Linkshegelianer</name>
-      <color>153,119,0</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>0,0,0</font_color>
@@ -347,7 +347,7 @@
     </category>
     <category>
       <name>Historismus</name>
-      <color>0,68,136</color>
+      <color>153,68,85</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>221,221,221</font_color>
@@ -363,39 +363,39 @@
     </category>
     <category>
       <name>Neukantianismus</name>
-      <color>0,68,136</color>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>2. - 19. Jahrhundert</parent>
     </category>
     <category>
       <name>Positivismus und Naturwissenschaft</name>
-      <color>0,68,136</color>
+      <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>2. - 19. Jahrhundert</parent>
     </category>
     <category>
       <name>Pragmatismus</name>
-      <color>0,68,136</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>2. - 19. Jahrhundert</parent>
     </category>
     <category>
       <name>Psychologismus</name>
-      <color>0,68,136</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>2. - 19. Jahrhundert</parent>
     </category>
     <category>
       <name>Romantik</name>
-      <color>0,68,136</color>
+      <color>153,68,85</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>221,221,221</font_color>
@@ -418,42 +418,42 @@
     </category>
     <category>
       <name>Britischer und Schottischer Empirismus</name>
-      <color>0,68,136</color>
-      <progress_color>153,254,255</progress_color>
-      <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
-      <parent>3. - Frühe Neuzeit 1600–1800</parent>
-    </category>
-    <category>
-      <name>Cambridger Platoniker</name>
-      <color>0,68,136</color>
-      <progress_color>153,254,255</progress_color>
-      <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
-      <parent>3. - Frühe Neuzeit 1600–1800</parent>
-    </category>
-    <category>
-      <name>Deutsche Aufklärer</name>
-      <color>0,68,136</color>
-      <progress_color>153,254,255</progress_color>
-      <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
-      <parent>3. - Frühe Neuzeit 1600–1800</parent>
-    </category>
-    <category>
-      <name>Französische Aufklärer</name>
-      <color>0,68,136</color>
-      <progress_color>153,254,255</progress_color>
-      <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
-      <parent>3. - Frühe Neuzeit 1600–1800</parent>
-    </category>
-    <category>
-      <name>Französische Aufklärer und Enzyklopädisten</name>
       <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>0,0,0</font_color>
+      <parent>3. - Frühe Neuzeit 1600–1800</parent>
+    </category>
+    <category>
+      <name>Cambridger Platoniker</name>
+      <color>153,119,0</color>
+      <progress_color>153,254,255</progress_color>
+      <done_color>153,254,255</done_color>
+      <font_color>0,0,0</font_color>
+      <parent>3. - Frühe Neuzeit 1600–1800</parent>
+    </category>
+    <category>
+      <name>Deutsche Aufklärer</name>
+      <color>238,153,170</color>
+      <progress_color>153,254,255</progress_color>
+      <done_color>153,254,255</done_color>
+      <font_color>0,0,0</font_color>
+      <parent>3. - Frühe Neuzeit 1600–1800</parent>
+    </category>
+    <category>
+      <name>Französische Aufklärer</name>
+      <color>102,153,204</color>
+      <progress_color>153,254,255</progress_color>
+      <done_color>153,254,255</done_color>
+      <font_color>0,0,0</font_color>
+      <parent>3. - Frühe Neuzeit 1600–1800</parent>
+    </category>
+    <category>
+      <name>Französische Aufklärer und Enzyklopädisten</name>
+      <color>153,68,85</color>
+      <progress_color>153,254,255</progress_color>
+      <done_color>153,254,255</done_color>
+      <font_color>221,221,221</font_color>
       <parent>Französische Aufklärer</parent>
     </category>
     <category>
@@ -466,34 +466,34 @@
     </category>
     <category>
       <name>Rationalismus</name>
-      <color>0,68,136</color>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>3. - Frühe Neuzeit 1600–1800</parent>
     </category>
     <category>
       <name>Russische Aufklärer</name>
-      <color>0,68,136</color>
+      <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>3. - Frühe Neuzeit 1600–1800</parent>
     </category>
     <category>
       <name>Spanische bzw. Hispanoamerikanische Aufklärung</name>
-      <color>0,68,136</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>3. - Frühe Neuzeit 1600–1800</parent>
     </category>
     <category>
       <name>Weitere britische Aufklärer</name>
-      <color>0,68,136</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>3. - Frühe Neuzeit 1600–1800</parent>
     </category>
     <category>
@@ -513,26 +513,26 @@
     </category>
     <category>
       <name>Humanismus</name>
-      <color>0,68,136</color>
+      <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>4. - Renaissance und Reformation 1400–1600</parent>
     </category>
     <category>
       <name>Philosophen</name>
-      <color>0,68,136</color>
+      <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>4. - Renaissance und Reformation 1400–1600</parent>
     </category>
     <category>
       <name>Reformation</name>
-      <color>0,68,136</color>
+      <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>4. - Renaissance und Reformation 1400–1600</parent>
     </category>
     <category>
@@ -576,14 +576,30 @@
     </category>
     <category>
       <name>Scholastik 500–1400</name>
-      <color>0,68,136</color>
+      <color>102,153,204</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
+      <font_color>0,0,0</font_color>
       <parent>5. - Mittelalter</parent>
     </category>
     <category>
       <name>5. - Mittelalterliche Mystik</name>
+      <color>153,68,85</color>
+      <progress_color>153,254,255</progress_color>
+      <done_color>153,254,255</done_color>
+      <font_color>221,221,221</font_color>
+      <parent>Scholastik 500–1400</parent>
+    </category>
+    <category>
+      <name>Frühscholastik</name>
+      <color>0,68,136</color>
+      <progress_color>153,254,255</progress_color>
+      <done_color>153,254,255</done_color>
+      <font_color>221,221,221</font_color>
+      <parent>Scholastik 500–1400</parent>
+    </category>
+    <category>
+      <name>Hochscholastik</name>
       <color>238,204,102</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
@@ -591,7 +607,7 @@
       <parent>Scholastik 500–1400</parent>
     </category>
     <category>
-      <name>Frühscholastik</name>
+      <name>Islamische Philosophie</name>
       <color>153,119,0</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
@@ -599,27 +615,11 @@
       <parent>Scholastik 500–1400</parent>
     </category>
     <category>
-      <name>Hochscholastik</name>
+      <name>Spätscholastik</name>
       <color>238,153,170</color>
       <progress_color>153,254,255</progress_color>
       <done_color>153,254,255</done_color>
       <font_color>0,0,0</font_color>
-      <parent>Scholastik 500–1400</parent>
-    </category>
-    <category>
-      <name>Islamische Philosophie</name>
-      <color>102,153,204</color>
-      <progress_color>153,254,255</progress_color>
-      <done_color>153,254,255</done_color>
-      <font_color>0,0,0</font_color>
-      <parent>Scholastik 500–1400</parent>
-    </category>
-    <category>
-      <name>Spätscholastik</name>
-      <color>153,68,85</color>
-      <progress_color>153,254,255</progress_color>
-      <done_color>153,254,255</done_color>
-      <font_color>221,221,221</font_color>
       <parent>Scholastik 500–1400</parent>
     </category>
     <category>

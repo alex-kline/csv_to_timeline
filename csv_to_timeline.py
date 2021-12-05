@@ -281,18 +281,22 @@ def tl_append_tag_to_element(ET_Element, element_name, element_value):
     return ET_Element
 
 # tl == timeline
-def tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_category):
-    category   = do_name_value['name']
-    color      = do_name_value['color']
-    font_color = do_name_value['font_color']
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='name'           , element_value = category)
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='color'          , element_value = color)
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='progress_color' , element_value ='153,254,255')
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='done_color'     , element_value ='153,254,255')
-    new_ET_category = tl_append_tag_to_element(new_ET_category, element_name ='font_color'     , element_value = font_color)
+def tl_append_multiple_tags_to_ET_element(ET_category, do_tag_value, do_category):
+    # appends multiple tags to the ElementTree-element: >ET_category<.
+
+    # do == dict of ...
+    category   = do_tag_value['name']
+    color      = do_tag_value['color']
+    font_color = do_tag_value['font_color']
+    ET_category = tl_append_tag_to_element(ET_category, element_name ='name', element_value = category)
+    ET_category = tl_append_tag_to_element(ET_category, element_name ='color', element_value = color)
+    ET_category = tl_append_tag_to_element(ET_category, element_name ='progress_color', element_value ='153,254,255')
+    ET_category = tl_append_tag_to_element(ET_category, element_name ='done_color', element_value ='153,254,255')
+    ET_category = tl_append_tag_to_element(ET_category, element_name ='font_color', element_value = font_color)
+    # do == dict of ...
     if category in do_category:
-        new_ET_category = tl_append_tag_to_element(new_ET_category, element_name = 'parent'     , element_value = do_category[category])
-    return new_ET_category
+        ET_category = tl_append_tag_to_element(ET_category, element_name ='parent', element_value = do_category[category])
+    return ET_category
 
 def get_split_category_from(long_category):
     split_category = long_category.split('#')
@@ -332,8 +336,9 @@ def tl_categories_add(section_categories, lo_new_events):
     # 2. in d_event['parent']      auftauchen
     
     # https://stackoverflow.com/questions/36447109/how-to-add-xml-nodes-in-python-using-elementtree
-    # Erst werden die unterschiedlichen Kategorien eruiert (und in zwei Listen geschrieben),
-    # dann werden sie an die section >element_value< angehängt.
+    # Erst werden die unterschiedlichen Kategorien eruiert (und in zwei python - Listen geschrieben),
+    # an die section >element_value< angehängt.
+    # zuletzt werden sie mittels >ET.Element(section_categories).append(ET_category)<
     
     # lo_long_category  = []  #  zB:   6. - Antike # Vorsokratiker 600–400 v. Chr. # Andere Philosophen der Vorsokratik
     # lo_split_category = []  #  zB: ['6. - Antike', 'Vorsokratiker 600–400 v. Chr.', 'Andere Philosophen der Vorsokratik']
@@ -385,13 +390,14 @@ def tl_categories_add(section_categories, lo_new_events):
                     lo_category.append(sub_category)
 
     # -------
-    with open("lo_category.txt", mode="w", encoding='utf8') as file:
-        for cnt, value in enumerate(lo_category):
-            file.write(value + '\n')
+    # with open("lo_category.txt", mode="w", encoding='utf8') as file:
+    #     for cnt, value in enumerate(lo_category):
+    #         file.write(value + '\n')
 
     # -------
     # Hauptkategorien == Kategorien die an erster Stelle in einer Kategorien-Kette stehen
     lo_main_category = [item[0] for item in lo_split_category if (len(item) >= 1)]
+
     with open("lo_main_category.txt", mode="w", encoding='utf8') as file:
         for cnt, value in enumerate(lo_main_category):
             file.write(value[0] + '\n')
@@ -413,38 +419,45 @@ def tl_categories_add(section_categories, lo_new_events):
     # gewählt.
 
     # lo_foregrnd_font_color = palette == zip-object (kind of list of list) with foreground color - font color.
+    # == iterable object == kind of list: [...[foregrnd_color, font_color], ...]
     lo_foregrnd_font_color = itertools.cycle(get_color_palette())
+    act_main_category = ''
     for idx, category in enumerate(lo_category):
-        new_ET_category = ET.SubElement(section_categories, 'category')
+        # ET_category = ET.SubElement(section_categories, 'category')
     
         print(str(category))
 
-        if category in lo_main_category:   # == Hauptkategorie
-            # lo_color = itertools.cycle(get_color_palette())
+        if category in lo_main_category:
+            # == Hauptkategorie
+            # reset color palette:
             lo_foregrnd_font_color = itertools.cycle(get_color_palette())
-            color      = '88,88,88'
-            font_color = '221,221,221'
+            color      = '88,88,88'         # == grey
+            font_color = '221,221,221'      # == white
+            act_main_category = category
         elif category in lo_sub_category:
-            # lo_color = itertools.cycle(get_color_palette())
-            lo_foregrnd_font_color = itertools.cycle(get_color_palette())
-            # color = str(next(lo_color))
+            # == Sub-Kategorie
+            # reset color palette:
+            if (act_main_category == '6. - Antike'):
+                lo_foregrnd_font_color = itertools.cycle(get_color_palette())
+            # get first element of palette:
             lo_color   = next(lo_foregrnd_font_color)
             color      = str(lo_color[0])
             font_color = str(lo_color[1])
         else:
-            # color = str(next(lo_color))
             lo_color   = next(lo_foregrnd_font_color)
             color      = str(lo_color[0])
             font_color = str(lo_color[1])
 
-
-
         # category_keys = ['name', 'color', 'progress_color', 'done_color', 'font_color']
-        do_name_value = {}
-        do_name_value['name']       = category
-        do_name_value['color']      = color
-        do_name_value['font_color'] = font_color
-        new_ET_category = tl_append_multiple_tags_to_element(new_ET_category, do_name_value, do_category)
+        # do == dict of
+        do_tag_value = {}
+        do_tag_value['name']       = category
+        do_tag_value['color']      = color
+        do_tag_value['font_color'] = font_color
+        # create new xml-item: >category<
+        new_ET_category = ET.SubElement(section_categories, 'category')
+        # append tags with vals to new it:
+        new_ET_category = tl_append_multiple_tags_to_ET_element(new_ET_category, do_tag_value, do_category)
         ET.Element(section_categories).append(new_ET_category)
 
 def tl_events_add(section_events, lo_new_event):
